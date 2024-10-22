@@ -1,5 +1,4 @@
 import FileController from './controller.js';
-import { CannotCreateFile } from '../../errors/index.js';
 import Log from '../../tools/logger.js';
 import State from '../../tools/state.js';
 import Proto from '../protobuf/index.js';
@@ -243,7 +242,6 @@ export default class FileWriter {
    * @param target File to validate.
    * @param baseBody File's body to initialize.
    * @returns {void} Void.
-   * @throws {CannotCreateFile} Error whenever file cannot be created.
    * @private
    */
   private validateFile(target: string, baseBody: string): void {
@@ -256,7 +254,6 @@ export default class FileWriter {
       }
     } catch (err) {
       Log.error('File reader', `Cannot create ${target} file`, (err as Error).message);
-      throw new CannotCreateFile(target);
     }
   }
 

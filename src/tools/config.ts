@@ -9,6 +9,7 @@ import path from 'path';
 export default function (): IConfig {
   return {
     path: path.resolve(process.cwd(), 'Toaster'),
+    shouldThrow: false,
     method: true,
     body: true,
     queryParams: true,

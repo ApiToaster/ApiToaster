@@ -1,12 +1,12 @@
-import { beforeEach, describe, expect, it, beforeAll } from '@jest/globals';
-import fs from 'fs';
+import { beforeAll, beforeEach, describe, expect, it } from '@jest/globals';
 import express from 'express';
+import fs from 'fs';
 import FileFinder from '../../../src/module/files/finder.js';
 import FileWriter from '../../../src/module/files/writer.js';
-import State from '../../../src/tools/state.js';
 import defaultConfig from '../../../src/tools/config.js';
-import { IFullError } from '../../../types/error.js';
+import State from '../../../src/tools/state.js';
 import { IFindParams } from '../../../types/cli.js';
+import { IFullError } from '../../../types/error.js';
 import { INotFormattedLogEntry } from '../../../types/logs.js';
 
 describe('File finder', () => {
@@ -52,10 +52,10 @@ describe('File finder', () => {
     await clear();
   });
 
-  describe('Should throw', () => {
-    //describe('No data passed', () => {});
-    //describe('Incorrect data', () => {});
-  });
+  // describe('Should throw', () => {
+  //describe('No data passed', () => {});
+  //describe('Incorrect data', () => {});
+  // });
 
   describe('Should pass', () => {
     it(`Find files - default config`, async () => {
@@ -71,6 +71,22 @@ describe('File finder', () => {
 
       expect(error).toBeUndefined();
       expect(callback.length).toEqual(1);
+      expect(callback[0]).toEqual([
+        expect.anything(),
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            header: 'val',
+          },
+          ip: '127.0.0.1',
+          occured: expect.anything(),
+          queryParams: {
+            key: 'value',
+          },
+          body: {},
+        },
+      ]);
     });
 
     it(`Find files - different ip - no data`, async () => {
@@ -101,6 +117,22 @@ describe('File finder', () => {
 
       expect(error).toBeUndefined();
       expect(callback.length).toEqual(1);
+      expect(callback[0]).toEqual([
+        expect.anything(),
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            header: 'val',
+          },
+          ip: '123.123.123.123',
+          occured: expect.anything(),
+          queryParams: {
+            key: 'value',
+          },
+          body: {},
+        },
+      ]);
     });
 
     it(`Find files - different json - no data`, async () => {
@@ -131,6 +163,22 @@ describe('File finder', () => {
 
       expect(error).toBeUndefined();
       expect(callback.length).toEqual(1);
+      expect(callback[0]).toEqual([
+        expect.anything(),
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            header: 'val',
+          },
+          ip: '127.0.0.1',
+          occured: expect.anything(),
+          queryParams: {
+            key: 'value',
+          },
+          body: { key: 'value' },
+        },
+      ]);
     });
 
     it(`Find files - different values - no data`, async () => {
@@ -161,6 +209,22 @@ describe('File finder', () => {
 
       expect(error).toBeUndefined();
       expect(callback.length).toEqual(1);
+      expect(callback[0]).toEqual([
+        expect.anything(),
+        {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            header: 'val',
+          },
+          ip: '127.0.0.1',
+          occured: expect.anything(),
+          queryParams: {
+            key: 'value',
+          },
+          body: { key: 'value' },
+        },
+      ]);
     });
 
     it(`Find files - different method - no data`, async () => {
@@ -191,6 +255,22 @@ describe('File finder', () => {
 
       expect(error).toBeUndefined();
       expect(callback.length).toEqual(1);
+      expect(callback[0]).toEqual([
+        expect.anything(),
+        {
+          method: 'GET',
+          headers: {
+            'content-type': 'application/json',
+            header: 'val',
+          },
+          ip: '127.0.0.1',
+          occured: expect.anything(),
+          queryParams: {
+            key: 'value',
+          },
+          body: {},
+        },
+      ]);
     });
   });
 });

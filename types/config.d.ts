@@ -1,5 +1,6 @@
 export interface IConfig {
   path: string;
+  shouldThrow?: boolean;
   method: boolean;
   body: boolean;
   queryParams: boolean;

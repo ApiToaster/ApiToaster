@@ -20,10 +20,26 @@ export default class FileFinder {
   }
 
   /**
+   * Get array of logs.
+   * @description Reads and returns logs using provided search params.
+   * @param params Search parameters provided by user
+   * @returns Promise<[string, INotFormattedLogEntry][]>
+   */
+  private async getLogs(params: IFindParams): Promise<[string, INotFormattedLogEntry][]> {
+    if (params.files.length === 0) {
+      const logs = await this.timeTravel.preLoadLogs(params.files[0]);
+      return logs;
+    }
+    const logPromises = params.files.map((file) => this.timeTravel.preLoadLogs(file));
+    const logEntries = await Promise.all(logPromises);
+    return logEntries.flat();
+  }
+
+  /**
    * Check for Object.
    * @description Checks if provaided object has nested objects.
    * @param examine Req.body or object nested in req.body.
-   * @returns objct or undefined.
+   * @returns object or undefined.
    */
   private checkForObj(examine: Record<string, unknown>): undefined | Record<string, unknown>[] {
     const array = Object.values(examine).filter((value) => typeof value === 'object') as Record<string, unknown>[];
@@ -104,19 +120,7 @@ export default class FileFinder {
       `codes: ${params.statusCodes.toString()}`,
     );
 
-    // Data is limited to only first value on the list. Make sure to include all params
-    let logs: [string, INotFormattedLogEntry][];
-    if (params.files.length === 0) {
-      logs = await this.timeTravel.preLoadLogs(params.files[0]);
-    } else {
-      const promises = await Promise.all(
-        params.files.map(async (file) => {
-          const logFile = await this.timeTravel.preLoadLogs(file);
-          return logFile;
-        }),
-      );
-      logs = promises.flat();
-    }
+    const logs = await this.getLogs(params);
 
     Log.debug('File finder', 'Raw data', logs);
     if (params.ips.length > 0 && !logs[0]?.[1]?.ip) {
@@ -127,53 +131,42 @@ export default class FileFinder {
     }
 
     const filteredLogs = logs.filter((log) => {
-      let result = true;
-      // @TODO: if result is false, break and return result
       // Check if ip is correct (only first ip in array is considered)
-      if (params.ips.length > 0 && log[1].ip !== params.ips[0]) {
-        Log.debug('File finder', 'Filtered log does not include required ip');
-        result = false;
-      }
+      if (params.ips.length > 0 && log[1].ip !== params.ips[0])
+        return false && Log.debug('File finder', 'Filtered log does not include required ip');
       // JSON checking
-      if (params.json) {
-        // Check if req.body is a JSON, if not return false
-        if (log[1].headers?.['content-type'] !== 'application/json') {
-          Log.debug('File finder', 'Filtered log is not application json type');
-          result = false;
-        } else {
-          // If req.body is correct check if it's content is matching
-          if (!this.findJSON(log[1].body, params.json)) {
-            Log.debug('File finder', 'Filtered log does not include provided body');
-            result = false;
-          }
-        }
-      }
+      // Check if req.body is a JSON, if not return false
+      if (params.json && log[1].headers?.['content-type'] !== 'application/json')
+        return false && Log.debug('File finder', 'Filtered log is not application json type');
+
+      // If req.body is correct check if it's content is matching
+      if (
+        params.json &&
+        log[1].headers?.['content-type'] === 'application/json' &&
+        !this.findJSON(log[1].body, params.json)
+      )
+        return false && Log.debug('File finder', 'Filtered log does not include provided body');
+
       // Check for keys. All keys must be present in the body
       for (const key of params.keys) {
-        if (key.length > 0 && !this.findKey(log[1].body, key)) {
-          Log.debug('File finder', 'Filtered log does not include provided keys');
-          result = false;
-        }
+        if (key.length > 0 && !this.findKey(log[1].body, key))
+          return false && Log.debug('File finder', 'Filtered log does not include provided keys');
       }
       // Check method. Only first method in the array is considered
-      if (params.methods.length > 0 && params.methods[0] && log[1].method !== params.methods[0]) {
-        Log.debug('File finder', 'Filtered log does not include provided method');
-        result = false;
-      }
+      if (params.methods.length > 0 && params.methods[0] && log[1].method !== params.methods[0])
+        return false && Log.debug('File finder', 'Filtered log does not include provided method');
 
       // Check for values. All values must be present in the body
       for (const value of params.values) {
-        if (value.length > 0 && !this.findValue(log[1].body, value)) {
-          Log.debug('File finder', 'Filtered log does not include privded values values');
-          result = false;
-        }
+        if (value.length > 0 && !this.findValue(log[1].body, value))
+          return false && Log.debug('File finder', 'Filtered log does not include privded values values');
       }
-      return result;
+      return true;
     });
+
     if (!filteredLogs[0]) {
       Log.warn('File finder', 'No logs has been found');
     }
-    // @TODO: save filterdLogs to the file (I'm waiting for Marcin to finish his method that does similar thing)
     this.writer.save('found.json', filteredLogs);
     Log.log('Found requests', filteredLogs);
     return filteredLogs;

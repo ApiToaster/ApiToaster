@@ -115,7 +115,6 @@ export default class TimeTravel {
    * @description Read logs file.
    * @param fileName Target file.
    * @returns {ILogsProto} Log files.
-   * @async
    * @private
    */
   private readLogs(fileName?: string): ILogsProto | ILogs {
