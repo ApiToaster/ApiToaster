@@ -169,7 +169,6 @@ export default [...fixupConfigRules(compat.extends(
         "jsdoc/require-returns-description": 1,
         "jsdoc/require-throws": 1,
         "jsdoc/sort-tags": 1,
-        "jsdoc/tag-lines": 1,
         "jsdoc/valid-types": 1,
         "max-classes-per-file": 2,
         "no-await-in-loop": 2,

@@ -1,7 +1,7 @@
 import Log from '../../tools/logger.js';
+import State from '../../tools/state.js';
 import { sleep } from '../../utils/index.js';
 import FileFinder from '../files/finder.js';
-// import FileReader from '../files/reader.js';
 import type {
   IFindParams,
   INotFormattedLogEntry,
@@ -33,10 +33,6 @@ export default class TimeTravel {
     return this._fileFinder;
   }
 
-  // private get fileReader(): FileReader {
-  //   return this._fileReader;
-  // }
-
   private get total(): ITimeTravelStats {
     return this._total;
   }
@@ -44,14 +40,13 @@ export default class TimeTravel {
   /**
    * Initialize time travel.
    * @description Initialize time travel and send all requests.
-   * @param config User's config.
    * @param params Target file.
    * @returns {void} Void.
    * @async
    */
-  async init(config: IToasterTimeTravel, params: IFindParams): Promise<void> {
+  async init(params: IFindParams): Promise<void> {
     Log.debug('Time travel', 'Initiing');
-    this.config = config;
+    this.config = State.toasterConfig;
     if (params.files.length > 1) {
       Log.warn('TimeTravel', 'Please provide only one file.');
       return;

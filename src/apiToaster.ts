@@ -1,5 +1,6 @@
+import FileReader from './module/files/reader.js';
 import FileWriter from './module/files/writer.js';
-import { defaultMiddlewareConfig } from './tools/config.js';
+import { defaultMiddlewareConfig, defaultToasterConfig } from './tools/config.js';
 import Log from './tools/logger.js';
 import State from './tools/state.js';
 import type { IToasterConfig } from '../types';
@@ -61,6 +62,8 @@ class Toaster {
    * @private
    */
   private initPath(config?: IToasterConfig): void {
+    const toasterConfig = FileReader.readConfig();
+    State.toasterConfig = { ...defaultToasterConfig(), ...toasterConfig };
     if (
       config &&
       typeof config === 'object' &&

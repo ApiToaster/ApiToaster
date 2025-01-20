@@ -1,8 +1,22 @@
 import FileController from './controller.js';
+import FileWriter from './writer.js';
+import { defaultMiddlewareConfig, defaultToasterConfig } from '../../tools/config.js';
 import Log from '../../tools/logger.js';
+import State from '../../tools/state.js';
+import Validation from '../../tools/validator.js';
 import { checkIfObject } from '../../utils/index.js';
 import Proto from '../protobuf/index.js';
-import type { ILog, ILogEntry, ILogProto, ILogs, ILogsProto, INotFormattedLogEntry } from '../../../types/index.js';
+import type {
+  ILog,
+  ILogEntry,
+  ILogProto,
+  ILogs,
+  ILogsProto,
+  INotFormattedLogEntry,
+  IToasterTimeTravel,
+} from '../../../types/index.js';
+import fs from 'fs';
+import path from 'path';
 
 export default class FileReader {
   private _controller: FileController;
@@ -24,8 +38,79 @@ export default class FileReader {
     return this._controller;
   }
 
+  /**
+   * Get default config for toaster.
+   * @description Returns default config.
+   * @returns {IToasterTimeTravel} Default configs.
+   * @private
+   */
+  private static getDefaultConfig(): IToasterTimeTravel {
+    return {
+      port: 5003,
+      countTime: false,
+      logFileSize: 200,
+      removeMalformed: false,
+      waitUntillNextReq: 1000,
+      inputBeforeNextReq: false,
+    };
+  }
   getMalformedLogs(): string[] {
     return this.malformed;
+  }
+  /**
+   * Validate configs.
+   * @description Validate time-travel config.
+   * @param config User's config.
+   * @returns {void} Void.
+   * @async
+   * @private
+   */
+  private static validateConfig(config: IToasterTimeTravel): void {
+    Log.debug('Cli', 'Validating config');
+
+    new Validation(config, 'config').isDefined().isObject();
+    new Validation(config.port, 'config.port').isDefined().isNumber();
+    if (config.countTime) new Validation(config.countTime, 'config.countTime').isDefined().isBoolean();
+    if (config.path) new Validation(config.path, 'config.path').isDefined().isString();
+    if (config.removeMalformed)
+      new Validation(config.removeMalformed, 'config.removeMalformed').isDefined().isBoolean();
+    if (config.waitUntillNextReq)
+      new Validation(config.waitUntillNextReq, 'config.waitUntillNextReq').isDefined().isNumber();
+    if (config.inputBeforeNextReq)
+      new Validation(config.inputBeforeNextReq, 'config.inputBeforeNextReq').isDefined().isBoolean();
+  }
+
+  /**
+   * Read application config.
+   * @description Read time-travel config.
+   * @returns {void} Void.
+   * @async
+   * @throws {Error} Throw new error whenever config is malformed.
+   */
+  static readConfig(): IToasterTimeTravel {
+    Log.debug('Cli', 'Reading config');
+    const defaultConfig: IToasterTimeTravel = FileReader.getDefaultConfig();
+    const dirPath = process.cwd();
+
+    FileWriter.validateFile('toaster.json', JSON.stringify(defaultConfig, null, 2), dirPath);
+
+    if (!fs.existsSync(path.join(dirPath, 'toaster.json'))) {
+      throw new Error('Missing toaster config');
+    }
+
+    try {
+      const file = fs.readFileSync(path.join(dirPath, 'toaster.json'));
+      const config = JSON.parse(file.toString()) as IToasterTimeTravel;
+      FileReader.validateConfig(config);
+
+      State.config = { ...defaultMiddlewareConfig() };
+      State.toasterConfig = { ...defaultToasterConfig(), ...config };
+      if (config.path) State.config.path = config.path;
+
+      return config;
+    } catch (_err) {
+      throw new Error('Malformed toaster config');
+    }
   }
   /**
    * Read logs files.

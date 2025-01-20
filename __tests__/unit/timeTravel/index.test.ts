@@ -70,7 +70,7 @@ describe('Time Travel', () => {
     beforeEach(async () => {
         await clear();
         State.config = defaultConfig();
-        State.toasterConfig = defaultToasterConfig();
+        State.toasterConfig = {...defaultToasterConfig(),...toasterConfig};
     });
 
     afterEach(async () => {
@@ -100,7 +100,7 @@ describe('Time Travel', () => {
             let callback: unknown | undefined;
             try {
                 await fileWriter.init(defaultReq as express.Request);
-                callback = await timeTravel.init(toasterConfig, params);
+                callback = await timeTravel.init( params);
             } catch (err) {
                 error = err as IFullError;
             }
@@ -125,7 +125,7 @@ describe('Time Travel', () => {
                 await fileWriter.init(defaultReq2 as express.Request);
                 const newParams = structuredClone(params);
                 newParams.values.push('value2');
-                callback = await timeTravel.init(toasterConfig, newParams);
+                callback = await timeTravel.init( newParams);
             } catch (err) {
                 error = err as IFullError;
             }
@@ -150,7 +150,7 @@ describe('Time Travel', () => {
             try {
                 await fileWriter.init(defaultReq as express.Request);
                 await fileWriter.init(defaultReq2 as express.Request);
-                callback = await timeTravel.init(toasterConfig, params);
+                callback = await timeTravel.init( params);
             } catch (err) {
                 error = err as IFullError;
             }
@@ -182,7 +182,7 @@ describe('Time Travel', () => {
             let error: IFullError | undefined = undefined;
             let callback: unknown | undefined;
             try {
-                callback = await timeTravel.init(toasterConfig, params);
+                callback = await timeTravel.init(params);
             } catch (err) {
                 error = err as IFullError;
             }
