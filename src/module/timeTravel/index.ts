@@ -1,7 +1,7 @@
 import Log from '../../tools/logger.js';
+import State from '../../tools/state.js';
 import { sleep } from '../../utils/index.js';
 import FileFinder from '../files/finder.js';
-import State from '../../tools/state.js'
 import type {
   IFindParams,
   INotFormattedLogEntry,
@@ -44,7 +44,7 @@ export default class TimeTravel {
    * @returns {void} Void.
    * @async
    */
-  async init( params: IFindParams): Promise<void> {
+  async init(params: IFindParams): Promise<void> {
     Log.debug('Time travel', 'Initiing');
     this.config = State.toasterConfig;
     if (params.files.length > 1) {
