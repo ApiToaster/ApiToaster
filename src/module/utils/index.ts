@@ -21,6 +21,23 @@ export default class Utils {
     return this._fileReader;
   }
 
+  /**
+   * Prompts the user to delete malformed log entries if any are found.
+   *
+   * This function checks for malformed logs using the `reader` instance.
+   * If malformed logs exist and automatic deletion is enabled in the configuration,
+   * they are deleted immediately. Otherwise, the user is prompted to confirm deletion.
+   *
+   * - If the user confirms, the logs are deleted.
+   * - If the user declines, the logs are retained.
+   *
+   * @returns {Promise<void>} Resolves when the deletion process (automatic or manual) is completed.
+   * @throws {Error} If an issue occurs during log retrieval or deletion.
+   * @example
+   * // Example usage:
+   * await fileFinderInstance.promptMalformedLogDeletion();
+   *
+   */
   async promptMalformedLogDeletion(): Promise<void> {
     const malformed = this.reader.getMalformedLogs();
     if (malformed.length > 0) {

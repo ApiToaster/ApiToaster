@@ -11,7 +11,6 @@ import type {
   ILogs,
   ILogsProto,
   INotFormattedLogEntry,
-  IToasterTimeTravel,
 } from '../../../types/index.js';
 import type express from 'express';
 import { randomUUID } from 'crypto';
@@ -77,6 +76,43 @@ export default class FileWriter {
     return this._controller;
   }
 
+  // /**
+  //  * Get default config for toaster.
+  //  * @description Returns default config.
+  //  * @returns {IToasterTimeTravel} Default configs.
+  //  * @private
+  //  */
+  // private getDefaultConfig(): IToasterTimeTravel {
+  //   return {
+  //     port: 5003,
+  //     countTime: false,
+  //     logFileSize: 200,
+  //     removeMalformed: false,
+  //     waitUntillNextReq: 1000,
+  //     inputBeforeNextReq: false,
+  //   };
+  // }
+  /**
+   * Validate and create files.
+   * @description Validate and create files with base validates if they do not exist.
+   * @param target File to validate.
+   * @param baseBody File's body to initialize.
+   * @param dirPath Directory path.
+   * @returns {void} Void.
+   * @private
+   */
+  static validateFile(target: string, baseBody: string, dirPath: string): void {
+    Log.debug('File writer', 'Validate file');
+    const location = path.resolve(dirPath, target);
+
+    try {
+      if (!fs.existsSync(location)) {
+        fs.writeFileSync(location, baseBody);
+      }
+    } catch (err) {
+      Log.error('File reader', `Cannot create ${target} file`, (err as Error).message);
+    }
+  }
   /**
    * Save new log.
    * @description Prepare and save new log.
@@ -116,9 +152,11 @@ export default class FileWriter {
   private pre(): void {
     Log.debug('File writer', 'Pre');
     this.controller.initDirectories();
-    this.validateFile('index.json', JSON.stringify({ indexes: {} }));
-    this.validateFile(this.currLogFile, JSON.stringify({ meta: { logCount: 0 }, logs: {} }));
-    this.validateFile('config.json', JSON.stringify({ disableProto: false }));
+
+    const filePath = State.config.path;
+    FileWriter.validateFile('index.json', JSON.stringify({ indexes: {} }), filePath);
+    FileWriter.validateFile(this.currLogFile, JSON.stringify({ meta: { logCount: 0 }, logs: {} }), filePath);
+    FileWriter.validateFile('config.json', JSON.stringify({ disableProto: false }), filePath);
   }
 
   /**
@@ -257,51 +295,6 @@ export default class FileWriter {
   private prepareConfig(): void {
     Log.debug('File writer', 'Preapre config');
     this.config.disableProto = State.config.disableProto;
-  }
-
-  /**
-   * Validate and create files.
-   * @description Validate and create files with base validates if they do not exist.
-   * @param target File to validate.
-   * @param baseBody File's body to initialize.
-   * @returns {void} Void.
-   * @private
-   */
-  private validateFile(target: string, baseBody: string): void {
-    Log.debug('File writer', 'Validate file');
-    const location = path.resolve(State.config.path, target);
-
-    try {
-      if (!fs.existsSync(location)) {
-        fs.writeFileSync(location, baseBody);
-      }
-    } catch (err) {
-      Log.error('File reader', `Cannot create ${target} file`, (err as Error).message);
-    }
-  }
-  /**
-   * Validate and create files.
-   * @description Validate and create files with base validates if they do not exist.
-   * @param target File to validate.
-   * @returns {void} Void.
-   * @private
-   */
-  validateMainConfig(target: string): void {
-    Log.debug('File writer', 'Validate main config file');
-    const location = path.resolve(process.cwd(), target);
-
-    const config: IToasterTimeTravel = {
-      port: 5003,
-      countTime: false,
-      logFileSize: 200,
-    };
-    try {
-      if (!fs.existsSync(location)) {
-        fs.writeFileSync(location, JSON.stringify(config, null, 2));
-      }
-    } catch (err) {
-      Log.error('File reader', `Cannot create ${target} file`, (err as Error).message);
-    }
   }
 
   /**

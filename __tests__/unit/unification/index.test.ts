@@ -84,7 +84,7 @@ describe('Unification', () => {
       let error: IFullError | undefined = undefined;
       State.config = { ...defaultConfig(), ip: false, headers: false, body: false, method: false, queryParams: false };
 
-      jest.spyOn(cli, 'readConfig').mockReturnValue({
+      jest.spyOn(FileReader, 'readConfig').mockReturnValue({
         path: '/valid/path',
         port: 0,
         countTime:false,
