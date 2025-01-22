@@ -2,20 +2,25 @@ import FinderQueryBuilder from './querybuilders/finderQueryBuilder.js';
 import UniQueryBuilder from './querybuilders/unificationQueryBuilder.js';
 import * as enums from '../enums/index.js';
 import Decoder from '../module/decode/index.js';
+import FileController from '../module/files/controller.js';
 import FileFinder from '../module/files/finder.js';
 import FileReader from '../module/files/reader.js';
+import FileWriter from '../module/files/writer.js';
 import Migration from '../module/migration/index.js';
 import TimeTravel from '../module/timeTravel/index.js';
 import Unification from '../module/unification/index.js';
 import Log from '../tools/logger.js';
+import State from '../tools/state.js';
 import type { ICliArgs } from '../../types/index.js';
 
 export default class Cli {
   private readonly _decoder: Decoder;
   private readonly _migration: Migration;
+  private readonly _writer: FileWriter;
 
   constructor() {
     this._decoder = new Decoder();
+    this._writer = new FileWriter();
     this._migration = new Migration();
   }
 
@@ -27,6 +32,9 @@ export default class Cli {
     return this._migration;
   }
 
+  private get writer(): FileWriter {
+    return this._writer;
+  }
   /**
    * Start cli.
    * @description Start cli and validate user's input.
@@ -36,6 +44,9 @@ export default class Cli {
   async handleInit(): Promise<void> {
     Log.debug('Cli', 'Initting');
     Log.logAll();
+
+    FileReader.readConfig();
+    this.checkForTempFiles();
 
     const args = process.argv.splice(2) as ICliArgs;
 
@@ -64,6 +75,27 @@ export default class Cli {
   }
 
   /**
+   * Look for temp files.
+   * @description If there are any present at start it means server was shoutdown ungracefuly.
+   * @returns {void} Void.
+   * @private
+   */
+  private checkForTempFiles(): void {
+    const tmp = FileReader.readTmpLogs();
+    if (tmp && tmp.length > 0) {
+      Log.warn(
+        'FileReader',
+        'Found tmp files. Server probably was shutdown ungracefuly.\nRun npx api-toast time-travel',
+      );
+      const failedPath = `${State.config.path}/failed`;
+
+      tmp?.forEach((el) => {
+        FileController.createDirectory(failedPath);
+        this.writer.copyLogs(`${el.parentPath}/${el.name}`, failedPath);
+      });
+    }
+  }
+  /**
    * Start decodding.
    * @description Start decodding files.
    * @param args User's params.
@@ -73,8 +105,6 @@ export default class Cli {
    */
   private async handleDecode(args: ICliArgs): Promise<void> {
     Log.debug('Cli', 'Handeling decode');
-
-    FileReader.readConfig();
 
     const flag = args[0];
     const target = args[1];
@@ -144,7 +174,7 @@ export default class Cli {
    */
   private async handleTimeTravel(args: ICliArgs): Promise<void> {
     Log.debug('Cli', 'Handling time travel');
-    FileReader.readConfig();
+
     if (args[0] === enums.ECliFlags.Help || args[0] === enums.ECliFlags.ShortHelp) {
       Log.log('Cli', enums.ECliResponses.TimeTravelHelp);
     } else {
@@ -167,7 +197,6 @@ export default class Cli {
   private async handleFind(args: ICliArgs): Promise<void> {
     Log.debug('Cli', 'Handeling find');
 
-    FileReader.readConfig();
     if (args[0] === enums.ECliFlags.Help || args[0] === enums.ECliFlags.ShortHelp) {
       Log.log('Cli', enums.ECliResponses.FindHelp);
     } else {
@@ -191,8 +220,6 @@ export default class Cli {
    */
   private async handleUnificate(args: ICliArgs): Promise<void> {
     Log.debug('Cli', 'Handling unification');
-
-    FileReader.readConfig();
 
     if (args[0] === enums.ECliFlags.Help || args[0] === enums.ECliFlags.ShortHelp) {
       Log.log('Cli', enums.ECliResponses.UnificateHelp);
@@ -238,7 +265,6 @@ export default class Cli {
   ): Promise<void> {
     Log.debug('Cli', 'Migrating');
 
-    FileReader.readConfig();
     await this.migration.init(fileName, logFormat);
   }
   /**

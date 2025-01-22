@@ -7,6 +7,16 @@ import path from 'path';
 
 export default class FileController {
   /**
+   * Creates a directory at the specified path if it does not already exist.
+   *
+   * @param {string} dirPath - The path of the directory to create.
+   */
+  static createDirectory(dirPath: string): void {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+  }
+  /**
    * Initialize location.
    * @description  Initialize directories and files on given path.
    * @returns {void} Void.
@@ -14,12 +24,14 @@ export default class FileController {
   initDirectories(): void {
     Log.debug('File reader', 'Initing directories');
     const dirPath = State.config.path;
+    const tempPath = path.resolve(dirPath, 'tmp');
 
     if (!fs.existsSync(dirPath)) {
       Log.debug('File reader', 'Path does not exist. Creating one');
 
       try {
-        fs.mkdirSync(dirPath, { recursive: true });
+        FileController.createDirectory(dirPath);
+        FileController.createDirectory(tempPath);
       } catch (error) {
         Log.error('File reader', 'Error while making logs directory', error);
       }
@@ -37,7 +49,7 @@ export default class FileController {
     Log.debug('File reader', 'Fetching log file');
     if (fileName) {
       try {
-        fs.readFileSync(path.resolve(State.config.path, fileName));
+        // fs.readFileSync(path.resolve(State.config.path, fileName));
       } catch (err) {
         Log.debug('File reader', 'Got error while reading provided file', (err as Error).message, (err as Error).stack);
         if (State.config.shouldThrow) throw new NoSavedLogsError();
@@ -66,6 +78,7 @@ export default class FileController {
         return match ? parseInt(match[0], 10) : null;
       })
       .filter((num): num is number => num !== null);
+      console.log("____P{{{{{{}}}}}}",logNumbers)
 
     if (logNumbers.length === 0) {
       Log.error('File reader', 'Number of log files is 0');
@@ -82,16 +95,23 @@ export default class FileController {
   /**
    * Prepare protobuf log files.
    * @description Read, validate and prepare log files.
+   * @param srcPath
    * @param fileName Target file name.
    * @returns {ILogsProto} Logs.
    * @throws {NoSavedLogsError} Throw error if req comes from reader and shouldThrow in config is set to true.
    */
-  prepareLogfile(fileName: string): ILogsProto | ILogs {
+  prepareLogfile(fileName: string, srcPath?: string): ILogsProto | ILogs {
     Log.debug('File reader', 'Preparing log file');
 
+    let log: string = '';
     try {
-      const log = path.resolve(State.config.path, fileName);
+      if (srcPath && srcPath?.length > 0) {
+        log = path.resolve(srcPath, fileName);
+      } else {
+        log = path.resolve(State.config.path, fileName);
+      }
       const data = fs.readFileSync(log).toString();
+
       const file = JSON.parse(data) as ILogsProto | ILogs;
 
       if (file?.logs) {

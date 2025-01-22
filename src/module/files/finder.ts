@@ -3,7 +3,7 @@ import FileWriter from './writer.js';
 import Log from '../../tools/logger.js';
 import Utils from '../utils/index.js';
 import type { IFindParams, INotFormattedLogEntry } from '../../../types/index.js';
-import type { IncomingHttpHeaders } from 'http2';
+// import type { IncomingHttpHeaders } from 'http2';
 // import readline from 'readline';
 
 export default class FileFinder {
@@ -40,7 +40,7 @@ export default class FileFinder {
       await this.utils.promptMalformedLogDeletion();
       return logs;
     }
-    const logPromises = params.files.map((file) => this.reader.preLoadLogs(file));
+    const logPromises = params.files.map((file) => this.reader.preLoadLogs(file, params.path));
     const logEntries = await Promise.all(logPromises);
     return logEntries.flat();
   }
@@ -110,12 +110,12 @@ export default class FileFinder {
     return nestedObjects.some((obj) => this.findJSON(obj, json));
   }
 
-  private checkForHeaders(headers: IncomingHttpHeaders | undefined): boolean {
-    return !headers || Object.keys(headers).length === 0;
-  }
-  private checkForBodyParam(params: IFindParams): boolean {
-    return Object.keys(params.json).length !== 0 || Boolean(params.keys[0]) || Boolean(params.values[0]);
-  }
+  // private checkForHeaders(headers: IncomingHttpHeaders | undefined): boolean {
+  //   return !headers || Object.keys(headers).length === 0;
+  // }
+  // private checkForBodyParam(params: IFindParams): boolean {
+  //   return Object.keys(params.json).length !== 0 || Boolean(params.keys[0]) || Boolean(params.values[0]);
+  // }
   /**
    * Find data.
    * @description Find data in files.
@@ -165,13 +165,15 @@ export default class FileFinder {
       }
 
       // Check if headers are present and inform user if not
-      if (!params.force && this.checkForHeaders(log[1].headers) && this.checkForBodyParam(params)) {
-        Log.warn(
-          'File finder',
-          `There are no headers saved for log ${log[0]}. Body and headers search is disable for this log. If you want to run these searches use --force flag`,
-        );
-        return false;
-      }
+      // if (!params.force && this.checkForHeaders(log[1].headers) && this.checkForBodyParam(params)) {
+      // if (this.checkForHeaders(log[1].headers) && this.checkForBodyParam(params)) {
+      // if (this.checkForBodyParam(params)) {
+      //   Log.warn(
+      //     'File finder',
+      //     `There are no headers saved for log ${log[0]}. Body and headers search is disable for this log. If you want to run these searches use --force flag`,
+      //   );
+      //   return false;
+      // }
 
       // Check if req.body is a JSON, if not return false
       if (Object.keys(params.json).length !== 0 && log[1].headers?.['content-type'] !== 'application/json') {

@@ -81,6 +81,7 @@ describe('Unification', () => {
 
   describe('Should throw', () => {
     it('unification - wrong key parametr', async () => {
+
       let error: IFullError | undefined = undefined;
       State.config = { ...defaultConfig(), ip: false, headers: false, body: false, method: false, queryParams: false };
 

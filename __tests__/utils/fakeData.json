@@ -30,6 +30,13 @@
       }
     }
   ],
+  "temp": [
+    {
+      "logs": {
+        "f078321c-4433-483a-a50f-a4a5f56ae357": "{\"body\":{\"key1\":\"value1\",\"key2\":\"value2\"},\"method\":\"POST\",\"headers\":{\"host\":\"localhost:5003\",\"user-agent\":\"curl/7.81.0\",\"accept\":\"*/*\",\"content-type\":\"application/json\"},\"ip\":\"::ffff:127.0.0.1\",\"statusCode\":200,\"occured\":\"1736970846350\"}"
+      }
+    }
+  ],
   "index": [
     {
       "indexes": {

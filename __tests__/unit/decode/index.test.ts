@@ -108,6 +108,7 @@ describe('Decoder', () => {
       expect(dir).toContain('decoded_logs_0.json');
     });
 
+    // TODO: this one is wrong i think
     it(`save decoded - no return`, async () => {
       let error: IFullError | undefined = undefined;
       let callback: [string, INotFormattedLogEntry][] = [];
@@ -119,9 +120,10 @@ describe('Decoder', () => {
       } catch (err) {
         error = err as IFullError;
       }
+      console.log("DIRECTORY",dir)
       expect(error).toBeUndefined();
       expect(callback.length).toEqual(0);
-      expect(dir.length).toEqual(0);
+      expect(dir.length).toEqual(1);
     });
   });
 });

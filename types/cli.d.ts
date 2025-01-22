@@ -3,7 +3,7 @@ import type * as enums from '../src/enums/index.js';
 export type ICliArgs = enums.ECliOptions[] | enums.ECliFlags[] | string[];
 
 export interface IFindParams {
-  force: boolean;
+  // force: boolean;
   files: string[];
   keys: string[];
   values: string[];
@@ -11,4 +11,5 @@ export interface IFindParams {
   json: Record<string, unknown>;
   methods: string[];
   statusCodes: number[];
+  path:string;
 }

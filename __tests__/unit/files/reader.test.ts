@@ -68,12 +68,12 @@ describe('File reader', () => {
         let err: IFullError | undefined = undefined;
 
         try {
-          fileReader.init('logs_12312312.json');
+          fileReader.init('log_12312312.json');
         } catch (error) {
           err = error as IFullError;
         }
 
-        expect(err?.message).toEqual(new NoSavedLogsError().message);
+        expect(err?.message).toEqual(new MalformedLogFilesError('log_12312312.json').message);
       });
 
       it(`Read file, default file is malformed`, async () => {

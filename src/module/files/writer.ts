@@ -76,22 +76,6 @@ export default class FileWriter {
     return this._controller;
   }
 
-  // /**
-  //  * Get default config for toaster.
-  //  * @description Returns default config.
-  //  * @returns {IToasterTimeTravel} Default configs.
-  //  * @private
-  //  */
-  // private getDefaultConfig(): IToasterTimeTravel {
-  //   return {
-  //     port: 5003,
-  //     countTime: false,
-  //     logFileSize: 200,
-  //     removeMalformed: false,
-  //     waitUntillNextReq: 1000,
-  //     inputBeforeNextReq: false,
-  //   };
-  // }
   /**
    * Validate and create files.
    * @description Validate and create files with base validates if they do not exist.
@@ -111,6 +95,36 @@ export default class FileWriter {
       }
     } catch (err) {
       Log.error('File reader', `Cannot create ${target} file`, (err as Error).message);
+    }
+  }
+  /**
+   * Copy file to location.
+   * @param src {string}.
+   * @param dest {string}.
+   * @returns {void} Void.
+   * @throws
+   */
+  copyLogs(src: string, dest: string): void {
+    Log.debug('File writer', 'Copying file.');
+
+    // TODO: after copy to failed dest, erase temp
+    // make it accessible for all commands perhaps ?
+    // for sure time travel has to has an access.
+    // make it removable
+    // also create method to remove normal logs maybe ?
+    // maybe create some rotation mechanism to erase logs ?
+    try {
+      const file = fs.readFileSync(src);
+      const log: ILogProto = JSON.parse(file.toString()) as ILogProto;
+      this.logs.logs = { ...(this.logs.logs as ILogProto), ...log };
+      const logs = {
+        logs: this.logs.logs,
+      };
+      const destFilePath = path.resolve(dest, 'failed.json');
+      fs.writeFileSync(destFilePath, JSON.stringify(logs, null, 2));
+      fs.rmSync(src);
+    } catch (_err) {
+      throw new Error('Copying file failed.');
     }
   }
   /**
@@ -142,6 +156,22 @@ export default class FileWriter {
     }
     this.checkFileSize(this.currLogFile);
     this.saveFiles();
+  }
+
+  /**
+   * Save temp log.
+   * @description Prepare and save temp log.
+   * @param req {express.Request} Request received from user.
+   * @returns {void} Void.
+   */
+
+  tempInit(req: express.Request): void {
+    Log.debug('File writer', 'Init');
+
+    this.controller.initDirectories();
+
+    this.prepareJsonLog(req);
+    this.save(`tmp/${State.reqUuid}.json`, this.logs.logs);
   }
 
   /**
@@ -208,6 +238,7 @@ export default class FileWriter {
     const logProto: ILogProto = {
       [uuid]: JSON.stringify(logBody),
     };
+    // TODO: currLogSize is not used anymore i think
     this.currLogSize = Buffer.byteLength(JSON.stringify(logProto));
     this.logs.logs = { ...(this.logs.logs as ILogProto), ...logProto };
     this.index.indexes[uuid] = path.resolve(State.config.path, this.currLogFile);
@@ -467,6 +498,24 @@ export default class FileWriter {
       this.save(fileName, modifiedData);
       this.save(indexLocation, modifiedIndexData);
     });
+  }
+  /**
+   * Delete temp log.
+   * @description Method to delete tmp log with id.
+   * @param id Logs id.
+   * @returns {void} Void.
+   * @throws
+   */
+  deleteTmpLog(id: string): void {
+    const location = path.resolve(State.config.path, `tmp/${id}.json`);
+    try {
+      if (!fs.existsSync(location)) {
+        throw new Error('Tmp file does not exist.');
+      }
+      fs.rmSync(location);
+    } catch (_error) {
+      throw new Error('Could not delete tmp file');
+    }
   }
   /**
    * Increments log numeration.
