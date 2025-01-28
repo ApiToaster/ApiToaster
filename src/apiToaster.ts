@@ -46,7 +46,9 @@ class Toaster {
    * @returns {void} Void.
    */
   preInit(config?: IToasterConfig): void {
+    // check for pre exisiting temp files .
     this.initPath(config);
+    this.checkForExistingTempFiles();
     this.initUuid();
   }
 
@@ -54,6 +56,20 @@ class Toaster {
     State.reqUuid = randomUUID();
   }
 
+  initTemp(req: express.Request): void {
+    this.fileWriter.tempInit(req);
+  }
+
+  private checkForExistingTempFiles(): void {
+    const tmpFiles = FileReader.readTmpLogs();
+    if (tmpFiles && tmpFiles.length > 0) {
+      Log.log('ApiToaster', 'Found tmp files. Server probably was shutdown ungracefuly.');
+    }
+  }
+
+  deleteTmp(id: string): void {
+    this.fileWriter.deleteTmpLog(id);
+  }
   /**
    * Initialize path.
    * @description Prepare application and initialize its path.
@@ -109,6 +125,7 @@ export default function (
 ): void {
   const toaster = new Toaster();
   toaster.preInit(config);
+  toaster.initTemp(req);
 
   if (State.toasterConfig.countTime) {
     Log.time(State.reqUuid, 'Counting time for req');
@@ -118,10 +135,15 @@ export default function (
   }
 
   res.once('finish', () => {
-    toaster.init(req, res.statusCode).catch((err) => {
-      Log.error('Main action', 'Got error', (err as Error).message);
-      State.reqUuid = null;
-    });
+    toaster
+      .init(req, res.statusCode)
+      .then(() => {
+        toaster.deleteTmp(State.reqUuid);
+      })
+      .catch((err) => {
+        Log.error('Main action', 'Got error', (err as Error).message);
+        State.reqUuid = null;
+      });
   });
   next();
 }

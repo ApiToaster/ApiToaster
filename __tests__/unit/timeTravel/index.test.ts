@@ -46,7 +46,6 @@ describe('Time Travel', () => {
     };
 
     const params: IFindParams = {
-        force: false,
         files: [],
         keys: [],
         values: [],
@@ -54,6 +53,7 @@ describe('Time Travel', () => {
         json: {},
         methods: [],
         statusCodes: [],
+        path:''
     };
 
     beforeAll(() => {

@@ -113,18 +113,63 @@ export default class FileReader {
     }
   }
   /**
+   * Read temp log file.
+   * @description Get list of files in temp log directory.
+   * @returns {string[] | undefined} Returns list of files in tmp directory.
+   * @throws
+   */
+  static readTmpLogs(): fs.Dirent[] | undefined {
+    Log.debug('Log reader', 'Reading tmp logs');
+    FileReader.checkFailedFile();
+
+    try {
+      const file = fs.readdirSync(path.resolve(State.config.path, 'tmp'), { withFileTypes: true });
+      return file;
+    } catch (_error) {
+      Log.log('FileReader', 'No temp directory.');
+      return undefined;
+    }
+  }
+
+  /**
+   * Check for failed log file.
+   * @description Logs if failed.json is found.
+   * @throws
+   */
+  static checkFailedFile(): void {
+    Log.debug('Log reader', 'Reading failde directory');
+
+    try {
+      const file = fs.readdirSync(path.resolve(State.config.path, 'failed'), { withFileTypes: true });
+      if (file.length > 0) {
+        Log.warn(
+          'FileReader',
+          'Found failed.json. Run \n npx api-toaster time-travel -p path/to/failed/dir -f failed.json',
+        );
+      }
+    } catch (_error) {
+      Log.error('FileReader', 'Could not read failed directory');
+    }
+  }
+  /**
    * Read logs files.
    * @description Get current or specified log file, read and return it for usage.
    * @param fileName Name of a file to be read.
+   * @param srcPath Different path to a log file.
    * @returns {ILogs} Saved logs.
    */
-  init(fileName?: string): ILogsProto | ILogs {
+  init(fileName?: string, srcPath?: string): ILogsProto | ILogs {
     Log.debug('Log reader', 'Initing');
     this.preRead();
 
-    const file = this.controller.fetchCurrentLogFile(fileName);
+    let file: string = '';
+    if (srcPath && srcPath?.length > 0 && fileName) {
+      file = fileName;
+    } else {
+      file = this.controller.fetchCurrentLogFile(fileName);
+    }
 
-    return this.controller.prepareLogfile(file);
+    return this.controller.prepareLogfile(file, srcPath);
   }
 
   /**
@@ -141,13 +186,14 @@ export default class FileReader {
    * Preload load.
    * @description Preload log file.
    * @param fileName Target file.
+   * @param srcPath Different path to a log file.
    * @returns {[string, INotFormattedLogEntry][]} Logs files.
    * @async
    */
-  async preLoadLogs(fileName?: string): Promise<[string, INotFormattedLogEntry][]> {
+  async preLoadLogs(fileName?: string, srcPath?: string): Promise<[string, INotFormattedLogEntry][]> {
     Log.debug('File reader', 'Preloading logs');
 
-    const logs = this.init(fileName);
+    const logs = this.init(fileName, srcPath);
     return this.prepareLogs(logs.logs);
   }
   /**

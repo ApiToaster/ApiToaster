@@ -40,7 +40,7 @@ export default class Log {
 
   static warn(target: string, ...messages: unknown[]): void {
     messages.forEach((m) => {
-      Log.buildLog(() => chalk.yellow(`Log.WARN: ${target}`), m);
+      Log.buildLog(() => chalk.red(`Log.WARN: ${target}`), m);
     });
   }
 

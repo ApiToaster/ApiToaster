@@ -8,7 +8,7 @@ export default class QueryBuilder {
   private _args: ICliArgs;
 
   private _params: IFindParams = {
-    force: false,
+    // force: false,
     files: [],
     keys: [],
     values: [],
@@ -16,6 +16,7 @@ export default class QueryBuilder {
     json: {},
     methods: [],
     statusCodes: [],
+    path: '',
   };
 
   constructor(args: ICliArgs) {
@@ -57,12 +58,10 @@ export default class QueryBuilder {
     const target = this.args[0];
 
     switch (target) {
-      case enums.ECliFlags.Force:
-      case enums.ECliFlags.ShortForce:
-        this.params.force = true;
-        break;
       case enums.ECliFlags.ShortPath:
       case enums.ECliFlags.Path:
+      case enums.ECliFlags.ShortFile:
+      case enums.ECliFlags.File:
       case enums.ECliFlags.Value:
       case enums.ECliFlags.ShortValue:
       case enums.ECliFlags.Keys:
@@ -93,6 +92,7 @@ export default class QueryBuilder {
       this.params.values.length === 0 &&
       this.params.keys.length === 0 &&
       this.params.files.length === 0 &&
+      this.params.path.length === 0 &&
       this.params.methods.length === 0 &&
       this.params.statusCodes.length === 0
     );
@@ -111,7 +111,7 @@ export default class QueryBuilder {
     switch (this.lastCommmand) {
       case enums.ECliFlags.ShortPath:
       case enums.ECliFlags.Path:
-        this.params.files.push(target);
+        this.params.path = target;
         break;
       case enums.ECliFlags.Value:
       case enums.ECliFlags.ShortValue:
@@ -120,6 +120,10 @@ export default class QueryBuilder {
       case enums.ECliFlags.Keys:
       case enums.ECliFlags.ShortKeys:
         this.params.keys.push(target);
+        break;
+      case enums.ECliFlags.File:
+      case enums.ECliFlags.ShortFile:
+        this.params.files.push(target);
         break;
       case enums.ECliFlags.Ip:
       case enums.ECliFlags.ShortIp:
