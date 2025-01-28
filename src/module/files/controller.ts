@@ -78,7 +78,6 @@ export default class FileController {
         return match ? parseInt(match[0], 10) : null;
       })
       .filter((num): num is number => num !== null);
-      console.log("____P{{{{{{}}}}}}",logNumbers)
 
     if (logNumbers.length === 0) {
       Log.error('File reader', 'Number of log files is 0');
@@ -95,8 +94,8 @@ export default class FileController {
   /**
    * Prepare protobuf log files.
    * @description Read, validate and prepare log files.
-   * @param srcPath
    * @param fileName Target file name.
+   * @param srcPath Path to file directory if different than one specified in config.
    * @returns {ILogsProto} Logs.
    * @throws {NoSavedLogsError} Throw error if req comes from reader and shouldThrow in config is set to true.
    */

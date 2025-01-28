@@ -120,6 +120,7 @@ export default class FileReader {
    */
   static readTmpLogs(): fs.Dirent[] | undefined {
     Log.debug('Log reader', 'Reading tmp logs');
+    FileReader.checkFailedFile();
 
     try {
       const file = fs.readdirSync(path.resolve(State.config.path, 'tmp'), { withFileTypes: true });
@@ -127,6 +128,27 @@ export default class FileReader {
     } catch (_error) {
       Log.log('FileReader', 'No temp directory.');
       return undefined;
+    }
+  }
+
+  /**
+   * Check for failed log file.
+   * @description Logs if failed.json is found.
+   * @throws
+   */
+  static checkFailedFile(): void {
+    Log.debug('Log reader', 'Reading failde directory');
+
+    try {
+      const file = fs.readdirSync(path.resolve(State.config.path, 'failed'), { withFileTypes: true });
+      if (file.length > 0) {
+        Log.warn(
+          'FileReader',
+          'Found failed.json. Run \n npx api-toaster time-travel -p path/to/failed/dir -f failed.json',
+        );
+      }
+    } catch (_error) {
+      Log.error('FileReader', 'Could not read failed directory');
     }
   }
   /**
@@ -163,8 +185,8 @@ export default class FileReader {
   /**
    * Preload load.
    * @description Preload log file.
-   * @param srcPath Different path to a log file.
    * @param fileName Target file.
+   * @param srcPath Different path to a log file.
    * @returns {[string, INotFormattedLogEntry][]} Logs files.
    * @async
    */

@@ -1,8 +1,0 @@
-{
-  "port": 5003,
-  "countTime": false,
-  "logFileSize": 200,
-  "removeMalformed": false,
-  "waitUntillNextReq": 1000,
-  "inputBeforeNextReq": false
-}
