@@ -56,6 +56,7 @@ describe('Time Travel', () => {
         path:''
     };
 
+    const fakeDuration=250
     beforeAll(() => {
         State.config = { ...defaultConfig(), ip: true };
         fetchMock = jest.spyOn(global, 'fetch').mockImplementation(() =>
@@ -99,7 +100,7 @@ describe('Time Travel', () => {
             let error: IFullError | undefined = undefined;
             let callback: unknown | undefined;
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeDuration);
                 callback = await timeTravel.init( params);
             } catch (err) {
                 error = err as IFullError;
@@ -121,8 +122,8 @@ describe('Time Travel', () => {
             let error: IFullError | undefined = undefined;
             let callback: unknown | undefined;
             try {
-                await fileWriter.init(defaultReq as express.Request);
-                await fileWriter.init(defaultReq2 as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeDuration);
+                await fileWriter.init(defaultReq2 as express.Request,fakeDuration);
                 const newParams = structuredClone(params);
                 newParams.values.push('value2');
                 callback = await timeTravel.init( newParams);
@@ -148,8 +149,8 @@ describe('Time Travel', () => {
             let error: IFullError | undefined = undefined;
             let callback: unknown | undefined;
             try {
-                await fileWriter.init(defaultReq as express.Request);
-                await fileWriter.init(defaultReq2 as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeDuration);
+                await fileWriter.init(defaultReq2 as express.Request,fakeDuration);
                 callback = await timeTravel.init( params);
             } catch (err) {
                 error = err as IFullError;

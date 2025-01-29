@@ -168,7 +168,6 @@ export default class Unification {
       if (keys?.length === 0 || !keys) {
         log = {
           method: entry.method ? entry.method.trim() : 'GET',
-          // body: entry.body ?? '{}',
           body: entry.body && Object.entries(entry.body as unknown as object).length > 0 ? entry.body : '{}',
           queryParams:
             entry.queryParams && Object.entries(entry.queryParams as unknown as object).length > 0
@@ -181,6 +180,7 @@ export default class Unification {
           ip: entry.ip && entry.ip.length > 0 ? entry.ip : '::ffff:127.0.0.1',
           statusCode: entry.statusCode ? entry.statusCode : 200,
           occured: entry.occured ?? Date.now().toString(),
+          duration: entry.duration ?? 0,
         };
       } else {
         log = {
@@ -201,6 +201,7 @@ export default class Unification {
             keys.includes('occured') && (entry.occured === null || !entry.occured)
               ? Date.now().toString()
               : entry.occured,
+          duration: entry.duration,
         };
       }
       return log;

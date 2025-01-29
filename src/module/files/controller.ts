@@ -49,7 +49,7 @@ export default class FileController {
     Log.debug('File reader', 'Fetching log file');
     if (fileName) {
       try {
-        // fs.readFileSync(path.resolve(State.config.path, fileName));
+        fs.readFileSync(path.resolve(State.config.path, fileName));
       } catch (err) {
         Log.debug('File reader', 'Got error while reading provided file', (err as Error).message, (err as Error).stack);
         if (State.config.shouldThrow) throw new NoSavedLogsError();

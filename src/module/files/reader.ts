@@ -148,6 +148,7 @@ export default class FileReader {
         );
       }
     } catch (_error) {
+      // TODO: not needed ?
       Log.error('FileReader', 'Could not read failed directory');
     }
   }
@@ -216,6 +217,12 @@ export default class FileReader {
           }
           return acc;
         }
+        if (key === 'duration') {
+          if (value !== null && typeof value === 'number') {
+            acc[key] = value;
+          }
+          return acc;
+        }
         // Type-specific checks for each key
         switch (key) {
           case 'queryParams':
@@ -240,7 +247,6 @@ export default class FileReader {
               acc[key] = value;
             }
             break;
-
           case 'method':
             if (typeof value === 'string' && value && value.trim() !== '') {
               acc[key] = value;
@@ -275,6 +281,7 @@ export default class FileReader {
             ip: decodedLog.ip,
             statusCode: decodedLog.statusCode,
             occured: decodedLog.occured,
+            duration: decodedLog.duration,
           };
           // Conditionally include fields
           if (decodedLog.body) {

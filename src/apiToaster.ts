@@ -26,16 +26,17 @@ class Toaster {
    * Initialize application.
    * @description Initialize application to save logs.
    * @param req {express.Request} Request received from user.
+   * @param duration {number} Request duration time.
    * @param statusCode {express.Response.statusCode} statusCode send by server.
    * @returns {void} Void.
    * @async
    */
-  async init(req: express.Request, statusCode?: number): Promise<void> {
+  async init(req: express.Request, duration?: number, statusCode?: number): Promise<void> {
     Log.log('Main action', 'Initing');
     const shouldSave = this.shouldSave(req);
 
     if (shouldSave) {
-      await this.fileWriter.init(req, statusCode);
+      await this.fileWriter.init(req, duration ?? 0, statusCode);
     }
   }
 
@@ -127,6 +128,7 @@ export default function (
   toaster.preInit(config);
   toaster.initTemp(req);
 
+  const startTime = Date.now();
   if (State.toasterConfig.countTime) {
     Log.time(State.reqUuid, 'Counting time for req');
     res.once('finish', () => {
@@ -135,8 +137,9 @@ export default function (
   }
 
   res.once('finish', () => {
+    const duration = Date.now() - startTime;
     toaster
-      .init(req, res.statusCode)
+      .init(req, duration, res.statusCode)
       .then(() => {
         toaster.deleteTmp(State.reqUuid);
       })

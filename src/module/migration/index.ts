@@ -99,6 +99,7 @@ export default class Migration {
           : (log.headers ?? {}),
       occured: log.occured,
       statusCode: log.statusCode ?? 0,
+      duration: log.duration ?? 0,
       ip: log.ip ?? '0.0.0.0',
     } as INotFormattedLogEntry;
     return l;

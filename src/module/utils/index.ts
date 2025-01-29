@@ -34,7 +34,6 @@ export default class Utils {
    * @returns {Promise<void>} Resolves when the deletion process (automatic or manual) is completed.
    * @throws {Error} If an issue occurs during log retrieval or deletion.
    * @example
-   * // Example usage:
    * await fileFinderInstance.promptMalformedLogDeletion();
    *
    */

@@ -3,8 +3,6 @@ import FileWriter from './writer.js';
 import Log from '../../tools/logger.js';
 import Utils from '../utils/index.js';
 import type { IFindParams, INotFormattedLogEntry } from '../../../types/index.js';
-// import type { IncomingHttpHeaders } from 'http2';
-// import readline from 'readline';
 
 export default class FileFinder {
   private readonly _reader: FileReader;

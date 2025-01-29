@@ -10,4 +10,5 @@ message LogEntry {
   string ip = 5;
   string occured = 6;
   int32 statusCode = 7;
+  int32 duration = 8;
 }
