@@ -13,6 +13,7 @@ export interface ILogEntry {
     ip?: string;
     statusCode?: number;
     occured?: string;
+    duration:number
 }
 
 export interface INotFormattedLogEntry {
@@ -23,6 +24,7 @@ export interface INotFormattedLogEntry {
     ip?: string;
     statusCode?: number;
     occured?: string;
+    duration:number
 }
 
 export interface ILogProto {

@@ -17,6 +17,7 @@ describe('Migration', () => {
             });
         });
     };
+    const fakeDuration=240
     const fileWriter = new FileWriter();
     const migration = new Migration();
     const defaultReq: Partial<express.Request> = {
@@ -52,7 +53,7 @@ describe('Migration', () => {
             let migratedFile: ILogs = { meta: { logCount: 0 }, logs: {} };
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeDuration);
                 await migration.init('logs_0.json', enums.ECliFlags.FormatJson);
                 dir = fs.readdirSync(State.config.path);
                 migratedFile = JSON.parse(fs.readFileSync(`${State.config.path}/migrate_logs_0.json`, 'utf-8'));
@@ -74,6 +75,7 @@ describe('Migration', () => {
                 },
                 statusCode: 0,
                 body: {},
+                duration:fakeDuration
             });
         });
 
@@ -84,7 +86,7 @@ describe('Migration', () => {
 
             State.config.disableProto = true;
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeDuration);
                 await migration.init('logs_0.json', enums.ECliFlags.FormatProto);
                 dir = fs.readdirSync(State.config.path);
                 migratedFile = JSON.parse(fs.readFileSync(`${State.config.path}/migrate_logs_0.json`, 'utf-8'));
@@ -104,9 +106,9 @@ describe('Migration', () => {
             let migratedFile: ILogs = { meta: { logCount: 0 }, logs: {} };
             State.config.disableProto = true;
             try {
-                await fileWriter.init(defaultReq as express.Request, 0);
+                await fileWriter.init(defaultReq as express.Request,fakeDuration, 0);
                 State.config.disableProto = false;
-                await fileWriter.init(defaultReq as express.Request, 0);
+                await fileWriter.init(defaultReq as express.Request,fakeDuration, 0);
                 await migration.init('logs_0.json', enums.ECliFlags.FormatJson);
                 dir = fs.readdirSync(State.config.path);
                 migratedFile = JSON.parse(fs.readFileSync(`${State.config.path}/migrate_logs_0.json`, 'utf-8'));
@@ -130,6 +132,7 @@ describe('Migration', () => {
                     key: 'value',
                 },
                 body: {},
+                duration:fakeDuration
             });
             expect(Object.values(migratedFile.logs)[1]).toEqual({
                 method: 'POST',
@@ -143,6 +146,7 @@ describe('Migration', () => {
                     key: 'value',
                 },
                 body: {},
+                duration:fakeDuration
             });
         });
         it(`migration - migrate from JSON to PROTO, and from PROTO to JSON -it is the same as original`, async () => {
@@ -152,8 +156,9 @@ describe('Migration', () => {
             let origin: ILogs = { meta: { logCount: 0 }, logs: {} };
 
             State.config.disableProto = true;
+
             try {
-                await fileWriter.init(defaultReq as express.Request, 0);
+                await fileWriter.init(defaultReq as express.Request,fakeDuration, 0);
                 await migration.init('logs_0.json', enums.ECliFlags.FormatProto);
                 dir = fs.readdirSync(State.config.path);
                 await migration.init('migrate_logs_0.json', enums.ECliFlags.FormatJson);

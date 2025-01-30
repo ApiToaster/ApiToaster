@@ -18,6 +18,7 @@ describe('Decoder', () => {
   };
   const fileWriter = new FileWriter();
   const decoder = new Decoder();
+  const fakeDuration=250
   const defaultReq: Partial<express.Request> = {
     method: 'POST',
     headers: {
@@ -54,7 +55,7 @@ describe('Decoder', () => {
       let error: IFullError | undefined = undefined;
       let callback: [string, INotFormattedLogEntry][] = [];
       try {
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeDuration);
         callback = await decoder.init();
         await decoder.saveDecoded();
       } catch (err) {
@@ -74,7 +75,8 @@ describe('Decoder', () => {
             key: 'value',
           },
           body: {},
-          ip:'127.0.0.1'
+          ip:'127.0.0.1',
+          duration:fakeDuration
         },
       ]);
     });
@@ -96,7 +98,7 @@ describe('Decoder', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       let dir: string[] = [];
       try {
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeDuration);
         callback = await decoder.init();
         await decoder.saveDecoded();
         dir = fs.readdirSync(State.config.path);

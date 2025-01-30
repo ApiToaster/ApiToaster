@@ -135,7 +135,7 @@ export default class FileWriter {
    * @returns {void} Void.
    */
 
-  async init(req: express.Request, statusCode?: number): Promise<void> {
+  async init(req: express.Request, duration: number, statusCode?: number): Promise<void> {
     Log.debug('File writer', 'Init');
 
     this.pre();
@@ -150,9 +150,9 @@ export default class FileWriter {
 
     this.prepareConfig();
     if (State.config.disableProto) {
-      this.prepareJsonLog(req, statusCode);
+      this.prepareJsonLog(req, duration, statusCode);
     } else {
-      await this.prepareBufLog(req, statusCode);
+      await this.prepareBufLog(req, duration, statusCode);
     }
     this.checkFileSize(this.currLogFile);
     this.saveFiles();
@@ -170,7 +170,7 @@ export default class FileWriter {
 
     this.controller.initDirectories();
 
-    this.prepareJsonLog(req);
+    this.prepareJsonLog(req, 0);
     this.save(`tmp/${State.reqUuid}.json`, this.logs.logs);
   }
 
@@ -193,17 +193,18 @@ export default class FileWriter {
    * Prepare new log.
    * @description Prepare new log and index it.
    * @param req {express.Request} Request received from user.
+   * @param duration Request duration time.
    * @param statusCode Response status code.
    * @returns {void} Void.
    * @private
    */
-  private async prepareBufLog(req: express.Request, statusCode?: number): Promise<void> {
+  private async prepareBufLog(req: express.Request, duration: number, statusCode?: number): Promise<void> {
     Log.debug('File writer', 'Prepare buf log');
 
     const uuid = State.reqUuid ?? randomUUID();
     const proto = new Proto();
 
-    const logBody = this.prepareLog(req, statusCode);
+    const logBody = this.prepareLog(req, duration, statusCode);
 
     logBody.occured = logBody.occured?.toString();
 
@@ -222,16 +223,17 @@ export default class FileWriter {
    * Prepare new log json.
    * @description Preapre new json log and index it.
    * @param req {express.Request} Request received from user.
+   * @param duration Request duration time.
    * @param statusCode Response status code.
    * @returns {void} Void.
    * @private
    */
-  private prepareJsonLog(req: express.Request, statusCode?: number): void {
+  private prepareJsonLog(req: express.Request, duration: number, statusCode?: number): void {
     Log.debug('File writer', 'Prepare json log');
 
     const uuid = State.reqUuid ?? randomUUID();
 
-    const logBody = this.prepareLog(req, statusCode);
+    const logBody = this.prepareLog(req, duration, statusCode);
 
     logBody.occured = logBody.occured?.toString();
 
@@ -251,11 +253,12 @@ export default class FileWriter {
    * Prepare new generic log body.
    * @description Preapre new generic log body.
    * @param req {express.Request} Request received from user.
+   * @param duration Request duration time.
    * @param statusCode Response status code.
    * @returns {void} Void.
    * @private
    */
-  private prepareLog(req: express.Request, statusCode?: number): INotFormattedLogEntry {
+  private prepareLog(req: express.Request, duration: number, statusCode?: number): INotFormattedLogEntry {
     Log.debug('File writer', 'Prepare log');
 
     const filteredHeaders = { ...req.headers };
@@ -270,6 +273,7 @@ export default class FileWriter {
       ip: State.config.ip ? req.ip : undefined,
       statusCode: State.config.statusCode ? statusCode : undefined,
       occured: Date.now().toString(),
+      duration,
     };
 
     this.obfuscate(body);
@@ -293,6 +297,7 @@ export default class FileWriter {
       headers: JSON.stringify(log.headers),
       ip: log.ip,
       statusCode: log.statusCode,
+      duration: log.duration,
     };
 
     const filteredLog = this.filterEmptyFields(formatted);

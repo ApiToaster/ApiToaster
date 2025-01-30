@@ -48,6 +48,8 @@ describe('Unification', () => {
     body: { key: 'value' },
   };
 
+  const fakeTime=250
+
   const mockInterfaceN = {
     question: (_query: string, callback: (answer: string) => void) => {
       callback('N'); // Simulate the user input as 'N'
@@ -110,7 +112,7 @@ describe('Unification', () => {
       // I can not make this mock work with jest, so for now im using node:mock
       mock.method(readline, 'createInterface', () => mockInterfaceN);
       try {
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         fileWriter.save('logs_0.json', log);
 
         fileReader.preLoadLogs();
@@ -130,7 +132,7 @@ describe('Unification', () => {
       let error: IFullError | undefined = undefined;
       let callback: [string, INotFormattedLogEntry][] = [];
       try {
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         await unification.init(params);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -149,6 +151,7 @@ describe('Unification', () => {
         },
         body: { key: 'value' },
         statusCode: 200,
+        duration:fakeTime
       });
     });
 
@@ -159,7 +162,7 @@ describe('Unification', () => {
       try {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('method');
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -171,6 +174,7 @@ describe('Unification', () => {
         occured: expect.anything(),
         body: {},
         statusCode: 200,
+        duration:fakeTime
       });
     });
 
@@ -189,7 +193,7 @@ describe('Unification', () => {
       try {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('method');
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -201,6 +205,7 @@ describe('Unification', () => {
         occured: expect.anything(),
         body: {},
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification - add only specified default value for queryParams`, async () => {
@@ -210,7 +215,7 @@ describe('Unification', () => {
       try {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('queryParams');
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -222,6 +227,7 @@ describe('Unification', () => {
         body: {},
         queryParams: { key: 'value' },
         statusCode: 200,
+        duration:fakeTime
       });
     });
 
@@ -240,7 +246,7 @@ describe('Unification', () => {
       try {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('queryParams');
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -252,6 +258,7 @@ describe('Unification', () => {
         body: {},
         queryParams: { key: 'value' },
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification - add only specified default value for statusCode`, async () => {
@@ -261,7 +268,7 @@ describe('Unification', () => {
       try {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('statusCode');
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -272,6 +279,7 @@ describe('Unification', () => {
         occured: expect.anything(),
         body: {},
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification -debuffed add only specified default value for statusCode`, async () => {
@@ -289,7 +297,7 @@ describe('Unification', () => {
       try {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('statusCode');
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -300,6 +308,7 @@ describe('Unification', () => {
         occured: expect.anything(),
         body: {},
         statusCode: 200,
+        duration:fakeTime
       });
     });
 
@@ -310,7 +319,7 @@ describe('Unification', () => {
       try {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('headers');
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -321,6 +330,7 @@ describe('Unification', () => {
         occured: expect.anything(),
         body: {},
         headers: { key: 'value' },
+        duration:fakeTime
       });
     });
     it(`unification -debuffed add only specified default value for headers`, async () => {
@@ -338,7 +348,7 @@ describe('Unification', () => {
       try {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('headers');
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -349,6 +359,7 @@ describe('Unification', () => {
         occured: expect.anything(),
         body: {},
         headers: { key: 'value' },
+        duration:fakeTime
       });
     });
 
@@ -360,7 +371,7 @@ describe('Unification', () => {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('ip');
         paramsClone.values.push('method');
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request, fakeTime,200);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -373,6 +384,7 @@ describe('Unification', () => {
         occured: expect.anything(),
         body: {},
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification -debuffed add only specified default value for method and ip`, async () => {
@@ -391,7 +403,7 @@ describe('Unification', () => {
         const paramsClone = structuredClone(params);
         paramsClone.values.push('ip');
         paramsClone.values.push('method');
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         await unification.init(paramsClone);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -404,6 +416,7 @@ describe('Unification', () => {
         occured: expect.anything(),
         body: {},
         statusCode: 200,
+        duration:fakeTime
       });
     });
 
@@ -412,7 +425,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: false, headers: false, body: false, method: false, queryParams: false };
       try {
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         await unification.init(params);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -427,6 +440,7 @@ describe('Unification', () => {
         statusCode: 200,
         headers: { key: 'value' },
         queryParams: { key: 'value' },
+        duration:fakeTime
       });
     });
 
@@ -443,7 +457,7 @@ describe('Unification', () => {
         queryParams: false,
       };
       try {
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         await unification.init(params);
         callback = await fileDecoder.init('logs_0.json');
       } catch (err) {
@@ -458,6 +472,7 @@ describe('Unification', () => {
         statusCode: 200,
         headers: { key: 'value' },
         queryParams: { key: 'value' },
+        duration:fakeTime
       });
     });
     it(`unification - remove ip`, async () => {
@@ -465,7 +480,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('ip');
@@ -484,6 +499,7 @@ describe('Unification', () => {
         },
         queryParams: { key: 'value' },
         statusCode: 200,
+        duration:fakeTime
       });
     });
 
@@ -492,7 +508,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true, disableProto: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('ip');
@@ -511,6 +527,7 @@ describe('Unification', () => {
         },
         queryParams: { key: 'value' },
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification - remove headers`, async () => {
@@ -518,7 +535,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('headers');
@@ -535,6 +552,7 @@ describe('Unification', () => {
         queryParams: { key: 'value' },
         ip: '127.0.0.2',
         statusCode: 200,
+        duration:fakeTime
       });
     });
 
@@ -543,7 +561,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true, disableProto: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request, fakeTime,200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('headers');
@@ -560,6 +578,7 @@ describe('Unification', () => {
         queryParams: { key: 'value' },
         ip: '127.0.0.2',
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification - remove queryparams`, async () => {
@@ -567,7 +586,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('queryParams');
@@ -586,6 +605,7 @@ describe('Unification', () => {
         },
         ip: '127.0.0.2',
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification -debuffed remove queryparams`, async () => {
@@ -593,7 +613,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true, disableProto: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('queryParams');
@@ -612,6 +632,7 @@ describe('Unification', () => {
         },
         ip: '127.0.0.2',
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification - remove statusCode`, async () => {
@@ -619,7 +640,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('statusCode');
@@ -640,6 +661,7 @@ describe('Unification', () => {
         queryParams: {
           key: 'value',
         },
+        duration:fakeTime
       });
     });
     it(`unification -debuffed remove statusCode`, async () => {
@@ -647,7 +669,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true, disableProto: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request, fakeTime,200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('statusCode');
@@ -668,6 +690,7 @@ describe('Unification', () => {
         queryParams: {
           key: 'value',
         },
+        duration:fakeTime
       });
     });
     it(`unification - remove method`, async () => {
@@ -675,7 +698,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request, fakeTime,200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('method');
@@ -696,6 +719,7 @@ describe('Unification', () => {
           key: 'value',
         },
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification -debuffed remove method`, async () => {
@@ -703,7 +727,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true, disableProto: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request, fakeTime,200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('method');
@@ -724,6 +748,7 @@ describe('Unification', () => {
           key: 'value',
         },
         statusCode: 200,
+        duration:fakeTime
       });
     });
 
@@ -732,7 +757,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('body');
@@ -755,6 +780,7 @@ describe('Unification', () => {
         },
         method: 'GET',
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification -debuffed remove body`, async () => {
@@ -762,7 +788,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true, disableProto: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('body');
@@ -783,6 +809,7 @@ describe('Unification', () => {
         },
         method: 'GET',
         statusCode: 200,
+        duration:fakeTime
       });
     });
 
@@ -791,7 +818,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('occured');
@@ -812,6 +839,7 @@ describe('Unification', () => {
         },
         method: 'GET',
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it(`unification -debuffed remove occured`, async () => {
@@ -819,7 +847,7 @@ describe('Unification', () => {
       let callback: [string, INotFormattedLogEntry][] = [];
       State.config = { ...defaultConfig(), ip: true, disableProto: true };
       try {
-        await fileWriter.init(defaultReq as express.Request, 200);
+        await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
         const cloneParams = structuredClone(params);
         cloneParams.remove = true;
         cloneParams.values.push('occured');
@@ -840,6 +868,7 @@ describe('Unification', () => {
         },
         method: 'GET',
         statusCode: 200,
+        duration:fakeTime
       });
     });
     it('unification - add default values and remove malformed logs', async () => {
@@ -851,7 +880,7 @@ describe('Unification', () => {
       const index = utils.fakeData.index[0];
       mock.method(readline, 'createInterface', () => mockInterfaceY);
       try {
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         fileWriter.save('logs_0.json', log);
         // fileReader.preLoadLogs();
         malformed = fileReader.getMalformedLogs();
@@ -882,7 +911,7 @@ describe('Unification', () => {
       const index = utils.fakeData.index[0];
       mock.method(readline, 'createInterface', () => mockInterfaceY);
       try {
-        await fileWriter.init(defaultReq as express.Request);
+        await fileWriter.init(defaultReq as express.Request,fakeTime);
         fileWriter.save('logs_0.json', log);
         malformed = fileReader.getMalformedLogs();
         fileWriter.save('index.json', index);

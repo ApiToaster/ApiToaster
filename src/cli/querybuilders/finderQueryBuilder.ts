@@ -8,7 +8,6 @@ export default class QueryBuilder {
   private _args: ICliArgs;
 
   private _params: IFindParams = {
-    // force: false,
     files: [],
     keys: [],
     values: [],

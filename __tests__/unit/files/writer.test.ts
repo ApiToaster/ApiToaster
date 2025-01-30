@@ -50,6 +50,8 @@ describe('File writer', () => {
         fileWriter.resetLogCount();
     });
 
+    const fakeTime=250
+
     describe('Should throw', () => {
         //describe('No data passed', () => {});
         //describe('Incorrect data', () => {});
@@ -61,7 +63,7 @@ describe('File writer', () => {
             let callback: ILogsProto | ILogs | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init();
             } catch (err) {
                 error = err as IFullError;
@@ -80,8 +82,8 @@ describe('File writer', () => {
             State.toasterConfig = { ...State.toasterConfig, logFileSize: 1 };
             let dir: string[] = [];
             try {
-                await fileWriter.init(defaultReq as express.Request);
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init('logs_0.json');
                 callback2 = fileReader.init('logs_1.json');
                 dir = fs.readdirSync(State.config.path);
@@ -102,7 +104,7 @@ describe('File writer', () => {
             let callback: ILogsProto | ILogs | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init();
                 fs.readdirSync(path.join(process.cwd(), 'AnotherToaster'));
             } catch (err) {
@@ -119,7 +121,7 @@ describe('File writer', () => {
             let callback: ILogsProto | ILogs | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init();
             } catch (err) {
                 error = err as IFullError;
@@ -135,7 +137,7 @@ describe('File writer', () => {
             let callback: ILogsProto | ILogs | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init();
             } catch (err) {
                 error = err as IFullError;
@@ -151,7 +153,7 @@ describe('File writer', () => {
             let callback: ILogsProto | ILogs | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init();
             } catch (err) {
                 error = err as IFullError;
@@ -167,7 +169,7 @@ describe('File writer', () => {
             let callback: ILogsProto | ILogs | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init();
             } catch (err) {
                 error = err as IFullError;
@@ -183,7 +185,7 @@ describe('File writer', () => {
             let callback: ILogsProto | ILogs | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init();
             } catch (err) {
                 error = err as IFullError;
@@ -199,7 +201,7 @@ describe('File writer', () => {
             let callback: ILogsProto | ILogs | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init();
             } catch (err) {
                 error = err as IFullError;
@@ -215,7 +217,7 @@ describe('File writer', () => {
             let callback: ILogsProto | ILogs | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init();
             } catch (err) {
                 error = err as IFullError;
@@ -231,7 +233,7 @@ describe('File writer', () => {
             let callback: INotFormattedLogEntry | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = JSON.parse(Object.values((fileReader.init() as ILogsProto).logs)[0]!);
             } catch (err) {
                 error = err as IFullError;
@@ -249,7 +251,7 @@ describe('File writer', () => {
             let callback: INotFormattedLogEntry | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request, 200);
+                await fileWriter.init(defaultReq as express.Request,fakeTime, 200);
                 callback = JSON.parse(Object.values((fileReader.init() as ILogsProto).logs)[0]!);
             } catch (err) {
                 error = err as IFullError;
@@ -268,7 +270,7 @@ describe('File writer', () => {
             let callback: INotFormattedLogEntry | undefined = undefined;
 
             try {
-                await fileWriter.init(defaultReq as express.Request, 400);
+                await fileWriter.init(defaultReq as express.Request,fakeTime, 400);
                 callback = JSON.parse(Object.values((fileReader.init() as ILogsProto).logs)[0]!);
             } catch (err) {
                 error = err as IFullError;
@@ -290,8 +292,8 @@ describe('File writer', () => {
             State.toasterConfig = { ...State.toasterConfig, logFileSize: 1 };
             let dir: string[] = [];
             try {
-                await fileWriter.init(defaultReq as express.Request);
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 callback = fileReader.init('logs_0.json');
                 callback2 = fileReader.init('logs_1.json');
                 dir = fs.readdirSync(State.config.path);
@@ -317,7 +319,7 @@ describe('File writer', () => {
             let dir: string[] = [];
 
             try {
-                await fileWriter.init(defaultReq as express.Request);
+                await fileWriter.init(defaultReq as express.Request,fakeTime);
                 fileWriter.save('logs_0.json', log);
 
                 fileReader.preLoadLogs();

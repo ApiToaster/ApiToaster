@@ -34,6 +34,7 @@ describe('Protobuff', () => {
     body: {}
   }
 
+  const fakeDuration=250
   const defaultCallback = {
     method: 'POST',
     body: '{}',
@@ -67,7 +68,7 @@ describe('Protobuff', () => {
       let callback: ILogEntry | undefined = undefined
 
       try {
-        await fileWriter.init(defaultReq as express.Request)
+        await fileWriter.init(defaultReq as express.Request,fakeDuration)
         const encoded = fileReader.init()
         callback = await buff.decodeLogEntry(Object.values(encoded.logs)[0]!)
       } catch (err) {
@@ -85,7 +86,7 @@ describe('Protobuff', () => {
       let error: IFullError | undefined = undefined
 
       try {
-        await fileWriter.init(defaultReq as express.Request)
+        await fileWriter.init(defaultReq as express.Request,fakeDuration)
         const encoded = fileReader.init()
         const decoded = await buff.decodeLogEntry(Object.values(encoded.logs)[0]!)
         await buff.encodeLog(decoded)

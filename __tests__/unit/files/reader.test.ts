@@ -73,7 +73,7 @@ describe('File reader', () => {
           err = error as IFullError;
         }
 
-        expect(err?.message).toEqual(new MalformedLogFilesError('log_12312312.json').message);
+        expect(err?.message).toEqual(new NoSavedLogsError().message);
       });
 
       it(`Read file, default file is malformed`, async () => {
