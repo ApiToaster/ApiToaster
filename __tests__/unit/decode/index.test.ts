@@ -122,7 +122,6 @@ describe('Decoder', () => {
       } catch (err) {
         error = err as IFullError;
       }
-      console.log("DIRECTORY",dir)
       expect(error).toBeUndefined();
       expect(callback.length).toEqual(0);
       expect(dir.length).toEqual(1);

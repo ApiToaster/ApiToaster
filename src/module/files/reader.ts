@@ -248,6 +248,7 @@ export default class FileReader {
             }
             break;
           case 'method':
+          case 'path':
             if (typeof value === 'string' && value && value.trim() !== '') {
               acc[key] = value;
             }
@@ -278,6 +279,7 @@ export default class FileReader {
             //   ? (JSON.parse(decodedLog.body) as Record<string, unknown>)
             //   : (decodedLog.body ?? {}),
             method: decodedLog.method,
+            path: decodedLog.path,
             ip: decodedLog.ip,
             statusCode: decodedLog.statusCode,
             occured: decodedLog.occured,

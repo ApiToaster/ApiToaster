@@ -14,6 +14,7 @@ export interface ILogEntry {
     statusCode?: number;
     occured?: string;
     duration:number
+    path:string;
 }
 
 export interface INotFormattedLogEntry {
@@ -25,6 +26,7 @@ export interface INotFormattedLogEntry {
     statusCode?: number;
     occured?: string;
     duration:number
+    path:string;
 }
 
 export interface ILogProto {

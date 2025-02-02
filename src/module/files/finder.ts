@@ -162,17 +162,6 @@ export default class FileFinder {
         return false;
       }
 
-      // Check if headers are present and inform user if not
-      // if (!params.force && this.checkForHeaders(log[1].headers) && this.checkForBodyParam(params)) {
-      // if (this.checkForHeaders(log[1].headers) && this.checkForBodyParam(params)) {
-      // if (this.checkForBodyParam(params)) {
-      //   Log.warn(
-      //     'File finder',
-      //     `There are no headers saved for log ${log[0]}. Body and headers search is disable for this log. If you want to run these searches use --force flag`,
-      //   );
-      //   return false;
-      // }
-
       // Check if req.body is a JSON, if not return false
       if (Object.keys(params.json).length !== 0 && log[1].headers?.['content-type'] !== 'application/json') {
         Log.debug('File finder', `Log ${log[0]} is not a json`);

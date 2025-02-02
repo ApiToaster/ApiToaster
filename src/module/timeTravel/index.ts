@@ -52,6 +52,7 @@ export default class TimeTravel {
       return;
     }
     const cos = await this.fileFinder.find(params);
+
     await this.sendRequests(cos);
 
     this.cleanUp();
@@ -124,12 +125,14 @@ export default class TimeTravel {
         'X-Toaster': 'true',
       },
       body: JSON.stringify(log[1].body) ?? '',
+      // path: log[1].path ?? '',
     };
     if (method === 'GET') {
       delete fetchReq.body;
     }
+    const url = `http://localhost:${this.config.port}${log[1].path ?? ''}`;
 
-    const res = await fetch(`http://localhost:${this.config.port}`, fetchReq);
+    const res = await fetch(url, fetchReq);
     if (this.config.countTime) Log.endTime(log[0]);
 
     if (res.ok) {
