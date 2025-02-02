@@ -178,6 +178,7 @@ export default class Unification {
               ? entry.headers
               : JSON.stringify({ key: 'value' }),
           ip: entry.ip && entry.ip.length > 0 ? entry.ip : '::ffff:127.0.0.1',
+          path: entry.path && entry.path.length > 0 ? entry.path : '',
           statusCode: entry.statusCode ? entry.statusCode : 200,
           occured: entry.occured ?? Date.now().toString(),
           duration: entry.duration ?? 0,
@@ -195,6 +196,7 @@ export default class Unification {
               ? JSON.stringify({ key: 'value' })
               : entry.headers,
           ip: keys.includes('ip') && (!entry.ip || entry.ip.length === 0) ? '::ffff:127.0.0.1' : entry.ip,
+          path: keys.includes('path') && (entry.path === null || !entry.path) ? '' : entry.path,
           statusCode:
             keys.includes('statusCode') && (entry.statusCode === null || !entry.statusCode) ? 200 : entry.statusCode,
           occured:

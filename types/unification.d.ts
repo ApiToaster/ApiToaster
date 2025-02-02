@@ -1,4 +1,4 @@
-type IUnifiactionKey = "method" | "body" | "queryParams" | "headers" | "ip" | "statusCode" | "occured";
+type IUnifiactionKey = "method" | "body" | "queryParams" | "headers" | "ip" | "statusCode" | "occured" | "path";
 
 export type IUnificationParams={
   files: string[];

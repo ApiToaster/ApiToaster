@@ -21,5 +21,6 @@ export interface ITimeTravelStats {
 export interface ITimeTravelReq {
   method: string;
   body?: string
+  path?:string
   headers?: Record<string, string>;
 }

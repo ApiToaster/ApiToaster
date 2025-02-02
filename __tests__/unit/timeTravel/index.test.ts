@@ -8,188 +8,228 @@ import State from '../../../src/tools/state.js';
 import { IFullError } from '../../../types/error.js';
 import { IFindParams } from '../../../types/cli.js';
 import { IToasterTimeTravel } from '../../../types/timeTravel.js';
+import Log from '../../../src/tools/logger.js';
 
 describe('Time Travel', () => {
-    let fetchMock: unknown;
-    const clear = async (target?: string): Promise<void> => {
-        return new Promise<void>((resolve) => {
-            fs.rmdir(target ?? 'Toaster', { recursive: true }, (_err) => {
-                resolve(undefined);
-            });
-        });
-    };
+  let fetchMock: unknown;
+  const logSpy = jest.spyOn(Log, 'log');
+  const clear = async (target?: string): Promise<void> => {
+    return new Promise<void>((resolve) => {
+      fs.rmdir(target ?? 'Toaster', { recursive: true }, (_err) => {
+        resolve(undefined);
+      });
+    });
+  };
 
-    const timeTravel = new TimeTravel();
-    const fileWriter = new FileWriter();
+  const timeTravel = new TimeTravel();
+  const fileWriter = new FileWriter();
 
-    const defaultReq: Partial<express.Request> = {
+  const defaultReq: Partial<express.Request> = {
+    method: 'POST',
+    headers: {
+      header: 'val',
+    },
+    ip: '127.0.0.1',
+    query: {
+      key: 'value',
+    },
+    body: {},
+  };
+
+  const defaultReq2: Partial<express.Request> = {
+    method: 'POST',
+    headers: {
+      header: 'val',
+    },
+    ip: '127.0.0.1',
+    body: {
+      key2: 'value2',
+    },
+  };
+
+  const defaultReq3: Partial<express.Request> = {
+    method: 'POST',
+    headers: {
+      header: 'val',
+    },
+    ip: '127.0.0.1',
+    query: {
+      key: 'value',
+    },
+    body: {},
+    path: '/asd',
+  };
+
+  const params: IFindParams = {
+    files: [],
+    keys: [],
+    values: [],
+    ips: [],
+    json: {},
+    methods: [],
+    statusCodes: [],
+    path: '',
+  };
+
+  const fakeDuration = 250;
+  beforeAll(() => {
+    State.config = { ...defaultConfig(), ip: true };
+    fetchMock = jest.spyOn(global, 'fetch').mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => { },
+      } as Response),
+    );
+  });
+
+  beforeEach(async () => {
+    await clear();
+    State.config = defaultConfig();
+    State.toasterConfig = { ...defaultToasterConfig(), ...toasterConfig };
+  });
+
+  afterEach(async () => {
+    await clear();
+    jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  // describe('Should throw', () => {
+  //   describe('No data passed', () => {
+  //   });
+  // });
+  const toasterConfig: IToasterTimeTravel = {
+    waitUntillNextReq: 0,
+    inputBeforeNextReq: false,
+    port: 0,
+    countTime: false,
+    logFileSize: 200,
+  };
+
+  describe('Should pass', () => {
+    it(`init - sends requests`, async () => {
+      let error: IFullError | undefined = undefined;
+      let callback: unknown | undefined;
+      try {
+        await fileWriter.init(defaultReq as express.Request, fakeDuration);
+        callback = await timeTravel.init(params);
+      } catch (err) {
+        error = err as IFullError;
+      }
+      expect(error).toBeUndefined();
+      expect(callback).toBeUndefined();
+      expect(fetchMock).toHaveBeenCalledWith(`http://localhost:0`, {
         method: 'POST',
         headers: {
-            header: 'val',
+          'X-Toaster': 'true',
+          header: 'val',
         },
-        ip: '127.0.0.1',
-        query: {
-            key: 'value',
-        },
-        body: {},
-    };
+        body: '{}',
+      });
+      expect(logSpy).toHaveBeenCalledWith('Time travel', 'Presenting data', 'Succeeded 1 and failed 0');
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
 
-    const defaultReq2: Partial<express.Request> = {
+    it(`init - sends requests on specific endpoint`, async () => {
+      let error: IFullError | undefined = undefined;
+      let callback: unknown | undefined;
+      try {
+        await fileWriter.init(defaultReq3 as express.Request, fakeDuration);
+        callback = await timeTravel.init(params);
+      } catch (err) {
+        error = err as IFullError;
+      }
+      expect(error).toBeUndefined();
+      expect(callback).toBeUndefined();
+      expect(fetchMock).toHaveBeenCalledWith(`http://localhost:0/asd`, {
         method: 'POST',
         headers: {
-            header: 'val',
+          'X-Toaster': 'true',
+          header: 'val',
         },
-        ip: '127.0.0.1',
-        body: {
-            key2: 'value2',
+        body: '{}',
+      });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it(`init - sends filtered requests`, async () => {
+      let error: IFullError | undefined = undefined;
+      let callback: unknown | undefined;
+      try {
+        await fileWriter.init(defaultReq as express.Request, fakeDuration);
+        await fileWriter.init(defaultReq2 as express.Request, fakeDuration);
+        const newParams = structuredClone(params);
+        newParams.values.push('value2');
+        callback = await timeTravel.init(newParams);
+      } catch (err) {
+        error = err as IFullError;
+      }
+      expect(error).toBeUndefined();
+      expect(callback).toBeUndefined();
+      expect(fetchMock).toHaveBeenCalledWith(`http://localhost:0`, {
+        method: 'POST',
+        headers: {
+          'X-Toaster': 'true',
+          header: 'val',
         },
-    };
-
-    const params: IFindParams = {
-        files: [],
-        keys: [],
-        values: [],
-        ips: [],
-        json: {},
-        methods: [],
-        statusCodes: [],
-        path:''
-    };
-
-    const fakeDuration=250
-    beforeAll(() => {
-        State.config = { ...defaultConfig(), ip: true };
-        fetchMock = jest.spyOn(global, 'fetch').mockImplementation(() =>
-            Promise.resolve({
-                ok: true,
-                status: 200,
-                json: async () => { },
-            } as Response),
-        );
+        body: JSON.stringify({
+          key2: 'value2',
+        }),
+        // path:""
+      });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 
-    beforeEach(async () => {
-        await clear();
-        State.config = defaultConfig();
-        State.toasterConfig = {...defaultToasterConfig(),...toasterConfig};
+    it(`init - sends multiple requests`, async () => {
+      let error: IFullError | undefined = undefined;
+      let callback: unknown | undefined;
+      try {
+        await fileWriter.init(defaultReq as express.Request, fakeDuration);
+        await fileWriter.init(defaultReq2 as express.Request, fakeDuration);
+        callback = await timeTravel.init(params);
+      } catch (err) {
+        error = err as IFullError;
+      }
+      expect(error).toBeUndefined();
+      expect(callback).toBeUndefined();
+      expect(fetchMock).toHaveBeenCalledWith(`http://localhost:0`, {
+        method: 'POST',
+        headers: {
+          'X-Toaster': 'true',
+          header: 'val',
+        },
+        body: JSON.stringify({
+          key2: 'value2',
+        }),
+      });
+      expect(fetchMock).toHaveBeenCalledWith(`http://localhost:0`, {
+        method: 'POST',
+        headers: {
+          'X-Toaster': 'true',
+          header: 'val',
+        },
+        body: JSON.stringify({
+          key2: 'value2',
+        }),
+      });
+      expect(fetchMock).toHaveBeenCalledTimes(2);
     });
 
-    afterEach(async () => {
-        await clear();
-        jest.clearAllMocks();
+    it(`init - no request to be send`, async () => {
+      let error: IFullError | undefined = undefined;
+      let callback: unknown | undefined;
+      try {
+        callback = await timeTravel.init(params);
+      } catch (err) {
+        error = err as IFullError;
+      }
+      expect(error).toBeUndefined();
+      expect(callback).toBeUndefined();
+      expect(fetchMock).toHaveBeenCalledTimes(0);
     });
-
-    afterAll(() => {
-        jest.restoreAllMocks();
-    });
-
-    // describe('Should throw', () => {
-    //describe('No data passed', () => {});
-    //describe('Incorrect data', () => {});
-    // });
-    const toasterConfig: IToasterTimeTravel = {
-        waitUntillNextReq: 0,
-        inputBeforeNextReq: false,
-        port: 0,
-        countTime: false,
-        logFileSize: 200,
-    };
-
-    describe('Should pass', () => {
-        it(`init - sends requests`, async () => {
-            let error: IFullError | undefined = undefined;
-            let callback: unknown | undefined;
-            try {
-                await fileWriter.init(defaultReq as express.Request,fakeDuration);
-                callback = await timeTravel.init( params);
-            } catch (err) {
-                error = err as IFullError;
-            }
-            expect(error).toBeUndefined();
-            expect(callback).toBeUndefined();
-            expect(fetchMock).toHaveBeenCalledWith(`http://localhost:0`, {
-                method: 'POST',
-                headers: {
-                    'X-Toaster': 'true',
-                    header: 'val',
-                },
-                body: '{}',
-            });
-            expect(fetchMock).toHaveBeenCalledTimes(1);
-        });
-
-        it(`init - sends filtered requests`, async () => {
-            let error: IFullError | undefined = undefined;
-            let callback: unknown | undefined;
-            try {
-                await fileWriter.init(defaultReq as express.Request,fakeDuration);
-                await fileWriter.init(defaultReq2 as express.Request,fakeDuration);
-                const newParams = structuredClone(params);
-                newParams.values.push('value2');
-                callback = await timeTravel.init( newParams);
-            } catch (err) {
-                error = err as IFullError;
-            }
-            expect(error).toBeUndefined();
-            expect(callback).toBeUndefined();
-            expect(fetchMock).toHaveBeenCalledWith(`http://localhost:0`, {
-                method: 'POST',
-                headers: {
-                    'X-Toaster': 'true',
-                    header: 'val',
-                },
-                body: JSON.stringify({
-                    key2: 'value2',
-                }),
-            });
-            expect(fetchMock).toHaveBeenCalledTimes(1);
-        });
-
-        it(`init - sends multiple requests`, async () => {
-            let error: IFullError | undefined = undefined;
-            let callback: unknown | undefined;
-            try {
-                await fileWriter.init(defaultReq as express.Request,fakeDuration);
-                await fileWriter.init(defaultReq2 as express.Request,fakeDuration);
-                callback = await timeTravel.init( params);
-            } catch (err) {
-                error = err as IFullError;
-            }
-            expect(error).toBeUndefined();
-            expect(callback).toBeUndefined();
-            expect(fetchMock).toHaveBeenCalledWith(`http://localhost:0`, {
-                method: 'POST',
-                headers: {
-                    'X-Toaster': 'true',
-                    header: 'val',
-                },
-                body: JSON.stringify({
-                    key2: 'value2',
-                }),
-            });
-            expect(fetchMock).toHaveBeenCalledWith(`http://localhost:0`, {
-                method: 'POST',
-                headers: {
-                    'X-Toaster': 'true',
-                    header: 'val',
-                },
-                body: JSON.stringify({
-                    key2: 'value2',
-                }),
-            });
-            expect(fetchMock).toHaveBeenCalledTimes(2);
-        });
-        it(`init - no request to be send`, async () => {
-            let error: IFullError | undefined = undefined;
-            let callback: unknown | undefined;
-            try {
-                callback = await timeTravel.init(params);
-            } catch (err) {
-                error = err as IFullError;
-            }
-            expect(error).toBeUndefined();
-            expect(callback).toBeUndefined();
-            expect(fetchMock).toHaveBeenCalledTimes(0);
-        });
-    });
+  });
 });
