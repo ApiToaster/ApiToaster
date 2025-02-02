@@ -135,7 +135,6 @@ export default class FileFinder {
     );
 
     const logs = await this.getLogs(params);
-    console.log("LLLOOOOG",logs)
 
     Log.debug('File finder', 'Raw data', logs);
     if (params.ips.length > 0 && !logs[0]?.[1]?.ip) {
@@ -162,7 +161,6 @@ export default class FileFinder {
         Log.debug('File finder', `Log ${log[0]} does not include provided method`);
         return false;
       }
-
 
       // Check if req.body is a JSON, if not return false
       if (Object.keys(params.json).length !== 0 && log[1].headers?.['content-type'] !== 'application/json') {

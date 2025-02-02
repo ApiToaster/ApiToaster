@@ -390,11 +390,9 @@ describe('File finder', () => {
         await fileWriter.init({ ...defaultReq } as express.Request,fakeDuration);
         fileWriter.tempInit(defaultReq as express.Request);
         tmpDir = fs.readdirSync(tmpPath);
-        console.log("TMPFILE",fs.readFileSync(`${tmpPath}/${tmpName}.json`).toString())
         fileWriter.copyLogs(`${tmpPath}/${tmpName}.json`, failedPath);
         failedDir = fs.readdirSync(failedPath);
         tmpDir2 = fs.readdirSync(tmpPath);
-        console.log("FAILED",fs.readFileSync(`${failedPath}/failed.json`).toString())
 
         fs.rmSync(`${State.config.path}/logs_0.json`);
         callback = await fileFinder.find({

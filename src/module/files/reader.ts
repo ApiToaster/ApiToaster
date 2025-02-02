@@ -194,7 +194,6 @@ export default class FileReader {
   async preLoadLogs(fileName?: string, srcPath?: string): Promise<[string, INotFormattedLogEntry][]> {
     Log.debug('File reader', 'Preloading logs');
 
-    console.log("______PRELOADLOGS",fileName)
     const logs = this.init(fileName, srcPath);
     return this.prepareLogs(logs.logs);
   }
