@@ -2,7 +2,7 @@ import { beforeEach, beforeAll, afterEach, describe, expect, it } from '@jest/gl
 import fs from 'fs';
 import FileReader from '../../../src/module/files/reader.js';
 import State from '../../../src/tools/state.js';
-import {defaultMiddlewareConfig as defaultConfig} from '../../../src/tools/config.js';
+import { defaultMiddlewareConfig as defaultConfig } from '../../../src/tools/config.js';
 import { IFullError } from '../../../types/error.js';
 import { MalformedLogFilesError, NoSavedLogsError } from '../../../src/errors/index.js';
 import path from 'path';
@@ -33,19 +33,6 @@ describe('File reader', () => {
 
   describe('Should throw', () => {
     describe('No data passed', () => {
-      it(`Read file - no files provided, files do not exist`, async () => {
-        State.config = { ...State.config, shouldThrow: true };
-        let err: IFullError | undefined = undefined;
-
-        try {
-          fileReader.init();
-        } catch (error) {
-          err = error as IFullError;
-        }
-
-        expect(err?.message).toEqual(new NoSavedLogsError().message);
-      });
-
       it(`Read file - no files provided, default file is malformed`, async () => {
         State.config = { ...State.config, shouldThrow: true };
         let err: IFullError | undefined = undefined;
@@ -63,6 +50,22 @@ describe('File reader', () => {
     });
 
     describe('Incorrect data', () => {
+      it(`Read file - no files provided, files do not exist`, async () => {
+        State.config = { ...State.config, shouldThrow: true };
+        let err: IFullError | undefined = undefined;
+        let dir: string[] = [];
+
+        try {
+          fileReader.init();
+          dir = fs.readdirSync(State.config.path);
+        } catch (error) {
+          err = error as IFullError;
+        }
+
+        expect(err).toBeUndefined();
+        expect(dir).toContain('logs_0.json');
+      });
+
       it(`Read file, files do not exist`, async () => {
         State.config = { ...State.config, shouldThrow: true };
         let err: IFullError | undefined = undefined;

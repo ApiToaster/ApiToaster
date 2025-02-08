@@ -14,6 +14,7 @@ export default class FileController {
   static createDirectory(dirPath: string): void {
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
+      Log.log('File controller', `Created ${dirPath}`);
     }
   }
   /**
@@ -80,7 +81,7 @@ export default class FileController {
       .filter((num): num is number => num !== null);
 
     if (logNumbers.length === 0) {
-      Log.error('File reader', 'Number of log files is 0');
+      Log.log('File reader', 'No logs to read');
       if (State.config.shouldThrow) throw new NoSavedLogsError();
     }
 
@@ -110,15 +111,12 @@ export default class FileController {
         log = path.resolve(State.config.path, fileName);
       }
       const data = fs.readFileSync(log).toString();
-
-      const file = JSON.parse(data) as ILogsProto | ILogs;
-
-      if (file?.logs) {
-        return file;
+      if (!data) {
+        Log.log('File reader', 'It seems like there are no logs to read');
+        return { logs: {} } as ILogsProto | ILogs;
       }
 
-      Log.warn('File reader', 'Log file seems to be malformatted. Will replace it on next save');
-      return file ?? { logs: {} };
+      return JSON.parse(data) as ILogsProto | ILogs;
     } catch (error) {
       Log.warn('File reader', 'Got error while parsing data', (error as Error).message);
       if (State.config.shouldThrow) {

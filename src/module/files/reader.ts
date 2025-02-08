@@ -181,8 +181,15 @@ export default class FileReader {
   private preRead(): void {
     Log.debug('File reader', 'Pre');
     this.controller.initDirectories();
+    if (!fs.existsSync(`${State.config.path}/logs_0.json`)) {
+      try {
+        fs.writeFileSync(`${State.config.path}/logs_0.json`, '');
+      } catch (error) {
+        Log.debug('File reader', (error as Error).message);
+        Log.log('File reader', "Couldn't create new ");
+      }
+    }
   }
-
   /**
    * Preload load.
    * @description Preload log file.
