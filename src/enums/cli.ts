@@ -30,5 +30,5 @@ export enum ECliFlags {
   SaveDecoded = '--save',
   ShortSaveDecoded = '-s',
   Remove = '--remove',
-  ShortRemove = '-r',
+  ShortRemove = '-rm',
 }
